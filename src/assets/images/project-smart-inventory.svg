@@ -1,0 +1,19 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="a" x1="150" y1="60" x2="1050" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE" stop-opacity="0.9"/>
+      <stop offset="0.5" stop-color="#3B82F6" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#A855F7" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="26" fill="#111827"/>
+  <rect x="70" y="70" width="1060" height="560" rx="22" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <rect x="110" y="120" width="420" height="200" rx="18" fill="url(#a)" fill-opacity="0.16"/>
+  <rect x="560" y="120" width="520" height="80" rx="18" fill="#FFFFFF" fill-opacity="0.06"/>
+  <rect x="560" y="220" width="520" height="100" rx="18" fill="#FFFFFF" fill-opacity="0.06"/>
+  <rect x="110" y="350" width="970" height="240" rx="18" fill="#FFFFFF" fill-opacity="0.04"/>
+  <circle cx="170" cy="160" r="12" fill="#22D3EE"/>
+  <circle cx="210" cy="160" r="12" fill="#3B82F6"/>
+  <circle cx="250" cy="160" r="12" fill="#A855F7"/>
+  <text x="110" y="40" fill="#F9FAFB" font-family="Inter" font-size="26" opacity="0.9">Smart Inventory</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="a" x1="260" y1="90" x2="960" y2="610" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="26" fill="#111827"/>
+  <rect x="70" y="70" width="1060" height="560" rx="22" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.12"/>
+  <rect x="110" y="120" width="970" height="140" rx="18" fill="url(#a)" fill-opacity="0.12"/>
+  <rect x="110" y="280" width="480" height="310" rx="20" fill="#FFFFFF" fill-opacity="0.05"/>
+  <rect x="600" y="280" width="480" height="310" rx="20" fill="#FFFFFF" fill-opacity="0.05"/>
+  <text x="110" y="40" fill="#F9FAFB" font-family="Inter" font-size="26" opacity="0.9">Accounting System</text>
+</svg>

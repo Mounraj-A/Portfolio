@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-base text-text font-inter;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-card border border-white/10 backdrop-blur-xl;
+  }
+
+  .section {
+    @apply py-20 sm:py-24;
+  }
+
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .neon-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-accentCyan via-accentBlue to-accentPurple bg-clip-text text-transparent;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-accentCyan to-accentBlue text-ink shadow-glowCyan hover:brightness-110;
+  }
+
+  .btn-secondary {
+    @apply btn glass text-text hover:border-white/20 hover:bg-white/10;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-muted;
+  }
+}
+
+/* Subtle premium background (grid + soft glow) */
+.bg-premium {
+  background-image: theme('backgroundImage.hero-radial');
+}

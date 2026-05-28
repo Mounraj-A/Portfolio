@@ -1,0 +1,17 @@
+<svg width="1200" height="850" viewBox="0 0 1200 850" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="180" y1="120" x2="1040" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A855F7" stop-opacity="0.62"/>
+      <stop offset="0.55" stop-color="#3B82F6" stop-opacity="0.56"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0.58"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="850" rx="34" fill="#111827"/>
+  <rect x="70" y="70" width="1060" height="710" rx="28" fill="#FFFFFF" fill-opacity="0.06" stroke="#FFFFFF" stroke-opacity="0.14"/>
+  <rect x="120" y="140" width="620" height="80" rx="18" fill="url(#g)" fill-opacity="0.14"/>
+  <rect x="120" y="250" width="960" height="16" rx="8" fill="#FFFFFF" fill-opacity="0.06"/>
+  <rect x="120" y="282" width="920" height="16" rx="8" fill="#FFFFFF" fill-opacity="0.06"/>
+  <rect x="120" y="314" width="880" height="16" rx="8" fill="#FFFFFF" fill-opacity="0.06"/>
+  <rect x="120" y="380" width="960" height="300" rx="22" fill="#FFFFFF" fill-opacity="0.05"/>
+  <text x="120" y="115" fill="#F9FAFB" font-family="Inter" font-size="28" opacity="0.92">Infosys Java — Certificate Placeholder</text>
+</svg>
