@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { scrollToId } from '../../utils/scrollToId.js'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 const navItems = [
   { label: 'Home', id: 'home' },
@@ -14,6 +15,8 @@ const navItems = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { state } = usePortfolio()
+  const resumeUrl = state.resume?.pdfUrl || '/resume.pdf'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -73,7 +76,7 @@ export default function Navbar() {
               </button>
             ))}
             <a
-              href="/resume.pdf"
+              href={resumeUrl}
               className="btn-secondary ml-2"
               download
             >
@@ -114,7 +117,7 @@ export default function Navbar() {
                     {item.label}
                   </button>
                 ))}
-                <a href="/resume.pdf" download className="btn-primary">
+                <a href={resumeUrl} download className="btn-primary">
                   Download Resume
                 </a>
               </div>

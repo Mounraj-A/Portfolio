@@ -3,6 +3,7 @@ import { Code2, Database, Brain, Palette } from 'lucide-react'
 import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 const roles = [
   {
@@ -28,12 +29,18 @@ const roles = [
 ]
 
 export default function About() {
+  const { state } = usePortfolio()
+  const about = state.about
+
   return (
     <section id="about" className="section scroll-mt-24">
       <SectionHeader
-        eyebrow="About"
-        title="Building products with clarity and craft"
-        subtitle="Computer Science Engineering student and full stack developer focused on clean UI, scalable systems, and AI-powered experiences."
+        eyebrow={about?.sectionHeader?.eyebrow || 'About'}
+        title={about?.sectionHeader?.title || 'Building products with clarity and craft'}
+        subtitle={
+          about?.sectionHeader?.subtitle ||
+          'Computer Science Engineering student and full stack developer focused on clean UI, scalable systems, and AI-powered experiences.'
+        }
       />
 
       <div className="container-x mt-12">
@@ -51,51 +58,49 @@ export default function About() {
 
                 {/* Heading */}
                 <h3 className="font-poppins text-2xl font-bold bg-gradient-to-r from-accentCyan to-accentPurple bg-clip-text text-transparent">
-                  Hello, I’m Mounraj
+                  Hello, I’m {about?.heroName || 'Mounraj'}
                 </h3>
                {/* Paragraph */}
                 <p className="mt-4 text-sm leading-relaxed !text-gray-400 sm:text-base">
-                  I’m a Computer Science Engineering student passionate about building modern
-                  web applications with clean UI, responsive design, and scalable backend systems.
-                  I enjoy working with React, Tailwind CSS, Java, and AI-based technologies to
-                  create fast and user-friendly digital experiences.
+                  {about?.paragraph ||
+                    'I’m a Computer Science Engineering student passionate about building modern web applications with clean UI, responsive design, and scalable backend systems. I enjoy working with React, Tailwind CSS, Java, and AI-based technologies to create fast and user-friendly digital experiences.'}
                 </p>
                 {/* Info Cards */}
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
 
                   <div className="glass rounded-3xl border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-accentCyan/30 hover:bg-white/10">
                     <div className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      College
+                      {about?.infoCards?.collegeLabel || 'College'}
                     </div>
                     <div className="mt-2 text-base font-bold text-white">
-                      CSE (Engineering)
+                      {about?.infoCards?.collegeValue || 'CSE (Engineering)'}
                     </div>
                   </div>
 
                   <div className="glass rounded-3xl border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-accentPurple/30 hover:bg-white/10">
                     <div className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Career Goal
+                      {about?.infoCards?.careerGoalLabel || 'Career Goal'}
                     </div>
                     <div className="mt-2 text-base font-bold text-white">
-                      Full Stack + AI Engineer
+                      {about?.infoCards?.careerGoalValue || 'Full Stack + AI Engineer'}
                     </div>
                   </div>
 
                   <div className="glass rounded-3xl border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-accentCyan/30 hover:bg-white/10">
                     <div className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Interests
+                      {about?.infoCards?.interestsLabel || 'Interests'}
                     </div>
                     <div className="mt-2 text-base font-bold text-white">
-                      UI/UX, Systems, ML
+                      {about?.infoCards?.interestsValue || 'UI/UX, Systems, ML'}
                     </div>
                   </div>
 
                   <div className="glass rounded-3xl border border-white/10 bg-white/5 p-5 transition duration-300 hover:border-accentPurple/30 hover:bg-white/10">
                     <div className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                      Mindset
+                      {about?.infoCards?.mindsetLabel || 'Mindset'}
                     </div>
                     <div className="mt-2 text-base font-bold text-white">
-                      Learn → Build → Ship
+                      {about?.infoCards?.mindsetValue || 'Learn → Build → Ship'}
                     </div>
                   </div>
 

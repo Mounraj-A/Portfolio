@@ -4,7 +4,7 @@ export default function SectionHeader({ eyebrow, title, subtitle }) {
   return (
     <div className="container-x">
       <MotionReveal>
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-4xl lg:max-w-7xl text-center">
           {eyebrow ? (
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold tracking-wide text-muted">
               <span className="h-1.5 w-1.5 rounded-full bg-accentCyan shadow-glowCyan" />

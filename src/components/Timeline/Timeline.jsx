@@ -2,31 +2,12 @@ import { motion } from 'framer-motion'
 import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
-
-const timeline = [
-  {
-    year: '2024',
-    title: 'Started React Development',
-    desc: 'Focused on modern UI patterns, component architecture, and clean UX flows.',
-  },
-  {
-    year: '2024',
-    title: 'Built Accounting System',
-    desc: 'Worked on structured modules, validation, and usable screens for real workflows.',
-  },
-  {
-    year: '2025',
-    title: 'AI & ML Projects',
-    desc: 'Explored machine learning, chatbot systems, and practical data-driven features.',
-  },
-  {
-    year: '2025',
-    title: 'Learning Spring Boot',
-    desc: 'Building backend services, REST APIs, and scalable server-side patterns.',
-  },
-]
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 export default function Timeline() {
+  const { state } = usePortfolio()
+  const timeline = state.timeline || []
+
   return (
     <section id="timeline" className="section scroll-mt-24">
       <SectionHeader

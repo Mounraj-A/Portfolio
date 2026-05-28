@@ -4,8 +4,12 @@ import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
 import resumePreview from '../../assets/images/resume-preview.svg'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 export default function Resume() {
+  const { state } = usePortfolio()
+  const resume = state.resume
+
   return (
     <section id="resume" className="section scroll-mt-24">
       <SectionHeader
@@ -20,7 +24,7 @@ export default function Resume() {
             <GlassCard className="overflow-hidden p-4 sm:p-5 hover:border-white/20">
               <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
                 <img
-                  src={resumePreview}
+                  src={resume?.previewImage || resumePreview}
                   alt="Resume preview"
                   className="w-full object-cover"
                 />
@@ -42,7 +46,7 @@ export default function Resume() {
               </p>
 
               <motion.a
-                href="/resume.pdf"
+                href={resume?.pdfUrl || '/resume.pdf'}
                 download
                 className="btn-primary mt-6"
                 whileHover={{ scale: 1.02 }}

@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion'
-import { Github, Linkedin, Mail } from 'lucide-react'
-
-const socials = [
-  { label: 'GitHub', href: 'https://github.com/', Icon: Github },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/', Icon: Linkedin },
-  { label: 'Email', href: 'mailto:mounraj@example.com', Icon: Mail },
-]
+import { getIconByKey } from '../../utils/iconRegistry.js'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 export default function Footer() {
+  const { state } = usePortfolio()
+  const socials = state.contact?.footerSocials || []
+
   return (
     <footer className="border-t border-white/10 bg-base/40 backdrop-blur-xl">
       <div className="container-x py-10">
@@ -21,7 +19,9 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-2">
-            {socials.map(({ label, href, Icon }) => (
+            {socials.map(({ label, href, iconKey }) => {
+              const Icon = getIconByKey(iconKey, 'mail')
+              return (
               <motion.a
                 key={label}
                 href={href}
@@ -34,7 +34,8 @@ export default function Footer() {
               >
                 <Icon className="h-5 w-5" />
               </motion.a>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

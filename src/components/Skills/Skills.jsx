@@ -2,7 +2,8 @@ import { motion } from 'framer-motion'
 import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
-import { skillGroups } from '../../data/skills.js'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
+import { getIconByKey } from '../../utils/iconRegistry.js'
 
 function Progress({ value }) {
   return (
@@ -19,6 +20,9 @@ function Progress({ value }) {
 }
 
 export default function Skills() {
+  const { state } = usePortfolio()
+  const skillGroups = state.skills?.groups || []
+
   return (
     <section id="skills" className="section scroll-mt-24">
       <SectionHeader
@@ -30,6 +34,7 @@ export default function Skills() {
       <div className="container-x mt-12">
         <div className="flex flex-col gap-5">
           {skillGroups.map((group, idx) => {
+            const GroupIcon = getIconByKey(group.groupIconKey, 'react')
             const lgCols =
               group.items.length >= 4
                 ? 'lg:grid-cols-4'
@@ -47,7 +52,7 @@ export default function Skills() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                      <group.icon className="h-6 w-6 text-accentCyan" />
+                      <GroupIcon className="h-6 w-6 text-accentCyan" />
                     </div>
                     <div>
                       <h3 className="font-poppins text-lg font-bold">{group.title}</h3>
@@ -58,28 +63,31 @@ export default function Skills() {
                 </div>
 
                 <div className={`mt-6 grid gap-4 ${smCols} ${lgCols}`}>
-                  {group.items.map((s) => (
-                    <motion.div
-                      key={s.name}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ duration: 0.18 }}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                            <s.Icon className="h-5 w-5 text-text" />
+                  {group.items.map((s) => {
+                    const SkillIcon = getIconByKey(s.iconKey, 'code2')
+                    return (
+                      <motion.div
+                        key={s.id || s.name}
+                        className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ duration: 0.18 }}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                              <SkillIcon className="h-5 w-5 text-text" />
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold">{s.name}</div>
+                              <div className="text-xs text-muted">Proficiency</div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="text-sm font-semibold">{s.name}</div>
-                            <div className="text-xs text-muted">Proficiency</div>
-                          </div>
+                          <div className="text-xs font-semibold text-muted">{s.level}%</div>
                         </div>
-                        <div className="text-xs font-semibold text-muted">{s.level}%</div>
-                      </div>
-                      <Progress value={s.level} />
-                    </motion.div>
-                  ))}
+                        <Progress value={s.level} />
+                      </motion.div>
+                    )
+                  })}
                 </div>
                 </GlassCard>
               </MotionReveal>

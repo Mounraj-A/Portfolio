@@ -5,6 +5,7 @@ import emailjs from '@emailjs/browser'
 import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 function parseRetryAfter(text) {
   if (typeof text !== 'string') return null
@@ -28,6 +29,9 @@ function toMailto({ toEmail, name, email, message }) {
 }
 
 export default function Contact() {
+  const { state } = usePortfolio()
+  const contact = state.contact
+
   const [status, setStatus] = useState('')
   const [retryAt, setRetryAt] = useState(null)
   const [now, setNow] = useState(Date.now())
@@ -118,9 +122,12 @@ export default function Contact() {
   return (
     <section id="contact" className="section scroll-mt-24">
       <SectionHeader
-        eyebrow="Contact"
-        title="Let’s build something premium"
-        subtitle="Send a message for collaborations, internships, or project discussions."
+        eyebrow={contact?.sectionHeader?.eyebrow || 'Contact'}
+        title={contact?.sectionHeader?.title || 'Let’s build something premium'}
+        subtitle={
+          contact?.sectionHeader?.subtitle ||
+          'Send a message for collaborations, internships, or project discussions.'
+        }
       />
 
       <div className="container-x mt-12">
@@ -190,7 +197,7 @@ export default function Contact() {
                   <a
                     className="btn-secondary w-full justify-center"
                     href={toMailto({
-                      toEmail: emailConfig.toEmail,
+                      toEmail: emailConfig.toEmail || contact?.direct?.email,
                       name: form.name,
                       email: form.email,
                       message: form.message,
@@ -211,29 +218,29 @@ export default function Contact() {
               <div className="mt-4 grid gap-3 text-sm">
                 <a
                   className="glass flex items-center gap-3 rounded-2xl p-4 hover:border-white/20 hover:bg-white/10"
-                  href="mailto:mounraj9025@gmail.com"
+                  href={`mailto:${contact?.direct?.email || 'mounraj9025@gmail.com'}`}
                 >
                   <Mail className="h-5 w-5 text-accentCyan" />
                   <div>
                     <div className="text-xs text-muted">Email</div>
-                    <div className="font-semibold">mounraj9025@gmail.com</div>
+                    <div className="font-semibold">{contact?.direct?.email || 'mounraj9025@gmail.com'}</div>
                   </div>
                 </a>
                 <a
                   className="glass flex items-center gap-3 rounded-2xl p-4 hover:border-white/20 hover:bg-white/10"
-                  href="tel:+919025982858"
+                  href={`tel:${(contact?.direct?.phone || '+919025982858').replace(/\s+/g, '')}`}
                 >
                   <Phone className="h-5 w-5 text-accentCyan" />
                   <div>
                     <div className="text-xs text-muted">Phone</div>
-                    <div className="font-semibold">+91 90259 82858</div>
+                    <div className="font-semibold">{contact?.direct?.phone || '+91 90259 82858'}</div>
                   </div>
                 </a>
                 <div className="glass flex items-center gap-3 rounded-2xl p-4">
                   <MapPin className="h-5 w-5 text-accentCyan" />
                   <div>
                     <div className="text-xs text-muted">Location</div>
-                    <div className="font-semibold">India</div>
+                    <div className="font-semibold">{contact?.direct?.location || 'India'}</div>
                   </div>
                 </div>
               </div>
@@ -241,7 +248,7 @@ export default function Contact() {
               <div className="mt-6 text-sm font-semibold">Social</div>
               <div className="mt-3 flex items-center gap-3">
                 <motion.a
-                  href="https://github.com/Mounraj-A"
+                  href={contact?.social?.github || 'https://github.com/Mounraj-A'}
                   target="_blank"
                   rel="noreferrer"
                   className="glass inline-flex h-12 w-12 items-center justify-center rounded-2xl hover:border-white/20 hover:bg-white/10"
@@ -252,7 +259,7 @@ export default function Contact() {
                   <Github className="h-5 w-5" />
                 </motion.a>
                 <motion.a
-                  href="https://www.linkedin.com/in/mounraj-a-9a5258328/"
+                  href={contact?.social?.linkedin || 'https://www.linkedin.com/in/mounraj-a-9a5258328/'}
                   target="_blank"
                   rel="noreferrer"
                   className="glass inline-flex h-12 w-12 items-center justify-center rounded-2xl hover:border-white/20 hover:bg-white/10"

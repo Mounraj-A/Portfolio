@@ -5,7 +5,7 @@ import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
 import TiltCard from '../TiltCard.jsx'
-import { projects } from '../../data/projects.js'
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 import ProjectModal from './ProjectModal.jsx'
 
 function Badge({ children }) {
@@ -93,8 +93,8 @@ function ProjectCard({ project, onOpen }) {
 
 export default function Projects() {
   const [selected, setSelected] = useState(null)
-
-  const items = useMemo(() => projects, [])
+  const { state } = usePortfolio()
+  const items = useMemo(() => state.projects || [], [state.projects])
 
   return (
     <section id="projects" className="section scroll-mt-24">
@@ -113,14 +113,7 @@ export default function Projects() {
           ))}
         </div>
 
-        <div className="mt-10 flex items-center justify-center">
-          <div className="glass rounded-2xl px-5 py-4 text-center">
-            <div className="text-sm font-semibold">Want to see more?</div>
-            <div className="mt-1 text-xs text-muted">
-              I can share additional builds, code samples, and case studies.
-            </div>
-          </div>
-        </div>
+       
       </div>
 
       <AnimatePresence>

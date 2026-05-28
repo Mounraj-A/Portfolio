@@ -4,40 +4,7 @@ import { Award, X } from 'lucide-react'
 import SectionHeader from '../SectionHeader.jsx'
 import MotionReveal from '../MotionReveal.jsx'
 import GlassCard from '../GlassCard.jsx'
-
-import certNptel from '../../assets/images/cert-nptel.svg'
-import certCoursera from '../../assets/images/cert-coursera.svg'
-import certInfosysJava from '../../assets/images/cert-infosys-java.svg'
-import certAIWorkshop from '../../assets/images/cert-ai-workshop.svg'
-import certDataScience from '../../assets/images/cert-data-science-internship.svg'
-
-const certs = [
-  {
-    title: 'NPTEL',
-    note: 'Computer Science coursework and certifications',
-    image: certNptel,
-  },
-  {
-    title: 'Coursera',
-    note: 'Skill-focused specializations and projects',
-    image: certCoursera,
-  },
-  {
-    title: 'Infosys Java',
-    note: 'Java fundamentals and practical programming',
-    image: certInfosysJava,
-  },
-  {
-    title: 'AI Workshop',
-    note: 'Hands-on sessions on AI concepts and tools',
-    image: certAIWorkshop,
-  },
-  {
-    title: 'Data Science Internship',
-    note: 'Applied data workflows and learning',
-    image: certDataScience,
-  },
-]
+import { usePortfolio } from '../../context/PortfolioContext.jsx'
 
 function CertificateModal({ cert, onClose }) {
   useEffect(() => {
@@ -91,7 +58,7 @@ function CertificateModal({ cert, onClose }) {
                     {cert.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
-                    {cert.note}
+                    {cert.description || cert.note}
                   </p>
                 </div>
 
@@ -122,6 +89,8 @@ function CertificateModal({ cert, onClose }) {
 
 export default function Certifications() {
   const [selected, setSelected] = useState(null)
+  const { state } = usePortfolio()
+  const certs = state.certificates || []
 
   return (
     <section id="certifications" className="section scroll-mt-24">
@@ -136,7 +105,7 @@ export default function Certifications() {
           <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {certs.map((c, idx) => (
               <motion.div
-                key={c.title}
+                key={c.id || c.title}
                 className="min-w-[260px] sm:min-w-[320px]"
                 whileHover={{ y: -4 }}
                 transition={{ duration: 0.18 }}
@@ -151,7 +120,7 @@ export default function Certifications() {
                     </div>
 
                     <h3 className="mt-4 font-poppins text-lg font-bold">{c.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{c.note}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{c.description || c.note}</p>
 
                     <motion.button
                       type="button"
