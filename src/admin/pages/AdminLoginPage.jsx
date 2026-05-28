@@ -117,8 +117,9 @@ export default function AdminLoginPage() {
                 {status ? <div className="text-xs text-red-300">{status}</div> : null}
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-muted">
-                  Temporary credentials: <span className="text-text">admin</span> /{' '}
-                  <span className="text-text">admin123</span>
+                  Username is <span className="text-text">admin</span>. Configure
+                  <span className="text-text"> VITE_ADMIN_PASSWORD</span> in your
+                  environment before deployment.
                 </div>
               </form>
             </div>

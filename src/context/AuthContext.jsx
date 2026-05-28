@@ -15,7 +15,10 @@ function loadInitialAuth() {
 
 function loadPassword() {
   const stored = loadJson(STORAGE_KEYS.adminPassword, null)
-  return typeof stored === 'string' && stored.length ? stored : 'admin123'
+  const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
+  if (typeof stored === 'string' && stored.length) return stored
+  if (typeof envPassword === 'string' && envPassword.length) return envPassword
+  return ''
 }
 
 export function AuthProvider({ children }) {
@@ -33,6 +36,9 @@ export function AuthProvider({ children }) {
   const actions = useMemo(() => {
     return {
       login({ username, password: inputPassword }) {
+        if (!password) {
+          return { ok: false, message: 'Admin password is not configured' }
+        }
         const isOk = username === 'admin' && inputPassword === password
         if (!isOk) return { ok: false, message: 'Invalid credentials' }
         setAuth({ isAuthed: true, username })
