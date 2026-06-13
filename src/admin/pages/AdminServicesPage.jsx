@@ -14,6 +14,39 @@ export default function AdminServicesPage() {
   const [openAdd, setOpenAdd] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [deleteItem, setDeleteItem] = useState(null)
+  const [pageError, setPageError] = useState('')
+
+  async function handleAdd(payload) {
+    setPageError('')
+    const res = await actions.addService(payload)
+    if (res?.ok) {
+      setOpenAdd(false)
+    } else {
+      setPageError(res?.message || 'Failed to add service. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdate(payload) {
+    setPageError('')
+    const res = await actions.updateService({ ...editItem, ...payload })
+    if (res?.ok) {
+      setEditItem(null)
+    } else {
+      setPageError(res?.message || 'Failed to update service.')
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteItem?.id) return
+    setPageError('')
+    const res = await actions.deleteService(deleteItem.id)
+    if (res?.ok) {
+      setDeleteItem(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete service.')
+      setDeleteItem(null)
+    }
+  }
 
   return (
     <AdminPageTransition>
@@ -26,7 +59,7 @@ export default function AdminServicesPage() {
                 <span className="gradient-text">Services Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Add, edit, and delete Services. Updates sync to LocalStorage and reflect instantly in your portfolio Services section.
+                Highlight the key services, solutions, and expertise you offer to clients and employers.
               </p>
             </div>
 
@@ -41,6 +74,12 @@ export default function AdminServicesPage() {
               Add Service
             </motion.button>
           </div>
+
+          {pageError ? (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+              {pageError}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -56,9 +95,9 @@ export default function AdminServicesPage() {
 
         {!items.length ? (
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
-            <div className="text-sm font-semibold">No services yet</div>
+            <div className="text-sm font-semibold">No services added yet</div>
             <div className="mt-2 text-sm text-muted">
-              Click <span className="text-text">Add Service</span> to create your first one.
+              Showcase what you do best.
             </div>
           </div>
         ) : null}
@@ -66,7 +105,7 @@ export default function AdminServicesPage() {
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Tip</div>
           <div className="mt-2 text-sm text-muted">
-            Use short titles and concise descriptions for the best card layout.
+            Focus on value, not features. Describe the outcomes you deliver, not just the tasks you perform.
           </div>
         </div>
       </div>
@@ -75,10 +114,7 @@ export default function AdminServicesPage() {
         open={openAdd}
         mode="add"
         onClose={() => setOpenAdd(false)}
-        onSubmit={(payload) => {
-          actions.addService(payload)
-          setOpenAdd(false)
-        }}
+        onSubmit={handleAdd}
       />
 
       <ServiceFormModal
@@ -86,20 +122,14 @@ export default function AdminServicesPage() {
         mode="edit"
         initialService={editItem}
         onClose={() => setEditItem(null)}
-        onSubmit={(payload) => {
-          actions.updateService({ ...editItem, ...payload })
-          setEditItem(null)
-        }}
+        onSubmit={handleUpdate}
       />
 
       <ServiceDeleteModal
         open={Boolean(deleteItem)}
         service={deleteItem}
         onClose={() => setDeleteItem(null)}
-        onConfirm={() => {
-          if (deleteItem?.id) actions.deleteService(deleteItem.id)
-          setDeleteItem(null)
-        }}
+        onConfirm={handleDelete}
       />
     </AdminPageTransition>
   )

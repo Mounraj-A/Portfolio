@@ -27,25 +27,25 @@ export default function AdminDashboardPage() {
             <span className="gradient-text">Portfolio CMS</span>
           </div>
           <div className="mt-2 text-sm text-muted">
-            Manage content via Context + LocalStorage. Changes reflect instantly on the portfolio.
+            Monitor your portfolio and manage content with real-time updates.
           </div>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          <AdminStatCard label="Total Projects" value={totalProjects} Icon={FolderKanban} />
-          <AdminStatCard label="Total Certificates" value={totalCertificates} Icon={Award} />
-          <AdminStatCard label="Total Skills" value={totalSkills} Icon={Sparkles} />
-          <AdminStatCard label="Last Updated" value={lastUpdated} Icon={Clock3} />
+          <AdminStatCard label="Projects Showcase" value={totalProjects} Icon={FolderKanban} />
+          <AdminStatCard label="Certifications" value={totalCertificates} Icon={Award} />
+          <AdminStatCard label="Core Skills" value={totalSkills} Icon={Sparkles} />
+          <AdminStatCard label="Latest Activity" value={lastUpdated} Icon={Clock3} />
         </div>
 
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
-          <div className="text-sm font-semibold">Next steps</div>
+          <div className="text-sm font-semibold">Portfolio Overview</div>
           <ul className="mt-3 space-y-2 text-sm text-muted">
-            <li>Projects CRUD management (implemented)</li>
-            <li>Certificates CRUD management (implemented)</li>
-            <li>Skills CRUD forms (coming next)</li>
-            <li>Image/PDF uploads stored as Base64 in LocalStorage</li>
-            <li>Import/Export for backups via Settings</li>
+            <li>Showcase impactful projects and achievements</li>
+            <li>Maintain a professional and up-to-date portfolio</li>
+            <li>Highlight technical expertise and certifications</li>
+            <li>Manage media assets with confidence</li>
+            <li>Keep your portfolio synchronized and secure</li>
           </ul>
         </div>
       </div>

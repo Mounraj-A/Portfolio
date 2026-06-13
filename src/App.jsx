@@ -10,12 +10,20 @@ import Achievements from './components/Achievements/Achievements.jsx'
 import Resume from './components/Resume/Resume.jsx'
 import Contact from './components/Contact/Contact.jsx'
 import Footer from './components/Footer/Footer.jsx'
+import DevToolsGuard from './components/DevToolsGuard.jsx'
+import { useSecurity } from './hooks/useSecurity.js'
 
 export default function App() {
+  // Apply all client-side security protections on the public portfolio
+  useSecurity({ enabled: true })
+
   return (
     <div className="min-h-screen bg-base">
       <div className="pointer-events-none fixed inset-0 -z-10 bg-hero-radial" />
       <div className="pointer-events-none fixed inset-0 -z-10 opacity-[0.18] [background-size:48px_48px] bg-grid" />
+
+      {/* DevTools detection — production only deterrent */}
+      <DevToolsGuard />
 
       <Navbar />
 

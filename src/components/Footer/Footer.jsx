@@ -15,25 +15,25 @@ export default function Footer() {
               <span className="gradient-text">Designed & Developed</span>{' '}
               <span className="text-muted">by</span> Mounraj
             </div>
-            <div className="mt-1 text-xs text-muted">© {new Date().getFullYear()} Mounraj.dev</div>
+            <div className="mt-1 text-xs text-muted">© {new Date().getFullYear()} All Rights Reserved.</div>
           </div>
 
           <div className="flex items-center gap-2">
             {socials.map(({ label, href, iconKey }) => {
               const Icon = getIconByKey(iconKey, 'mail')
               return (
-              <motion.a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                className="glass inline-flex h-11 w-11 items-center justify-center rounded-2xl hover:border-white/20 hover:bg-white/10"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                aria-label={label}
-              >
-                <Icon className="h-5 w-5" />
-              </motion.a>
+                <motion.a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="glass inline-flex h-11 w-11 items-center justify-center rounded-2xl hover:border-white/20 hover:bg-white/10"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  aria-label={label}
+                >
+                  <Icon className="h-5 w-5" />
+                </motion.a>
               )
             })}
           </div>

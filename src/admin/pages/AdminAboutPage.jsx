@@ -95,8 +95,8 @@ export default function AdminAboutPage() {
     }))
   }
 
-  function handleSave() {
-    setStatus('')
+  async function handleSave() {
+    setStatus('Saving…')
 
     const payload = {
       ...(state.about || {}),
@@ -121,8 +121,8 @@ export default function AdminAboutPage() {
       },
     }
 
-    actions.setAbout(payload)
-    setStatus('Saved')
+    const res = await actions.setAbout(payload)
+    setStatus(res?.ok ? 'Saved' : res?.message || 'Failed to save')
     window.setTimeout(() => setStatus(''), 1500)
   }
 
@@ -143,7 +143,7 @@ export default function AdminAboutPage() {
                 <span className="gradient-text">About Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Edit the content used by your portfolio About section. The public UI stays unchanged; only the data updates.
+                Share the story, values, and expertise behind your work.
               </p>
             </div>
 
@@ -183,14 +183,14 @@ export default function AdminAboutPage() {
                 <Input
                   value={form.sectionHeader.title}
                   onChange={(e) => setSectionHeader('title', e.target.value)}
-                  placeholder="Building products with clarity and craft"
+                  placeholder="Crafting solutions with code and creativity"
                 />
               </Field>
               <Field label="Subtitle" hint="Short description">
                 <Textarea
                   value={form.sectionHeader.subtitle}
                   onChange={(e) => setSectionHeader('subtitle', e.target.value)}
-                  placeholder="Computer Science Engineering student..."
+                  placeholder="A blend of technical expertise, creative problem-solving, and continuous learning."
                   rows={4}
                 />
               </Field>
@@ -198,7 +198,7 @@ export default function AdminAboutPage() {
           </div>
 
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
-            <div className="text-sm font-semibold">Hero + paragraph</div>
+            <div className="text-sm font-semibold">Hero</div>
             <div className="mt-5 grid gap-5">
               <Field label="Hero name" hint="Shown as 'Hello, I’m …'">
                 <Input
@@ -221,7 +221,7 @@ export default function AdminAboutPage() {
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7 lg:col-span-2">
             <div className="text-sm font-semibold">Info cards</div>
             <p className="mt-2 text-sm text-muted">
-              These map to the four cards in the About section (label + value).
+              Showcase the essentials of your background, goals, and expertise.
             </p>
 
             <div className="mt-5 grid gap-5 md:grid-cols-2">
@@ -299,7 +299,7 @@ export default function AdminAboutPage() {
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Note</div>
           <div className="mt-2 text-sm text-muted">
-            The role cards (Frontend/Backend/AI/UIUX) are currently static in the portfolio UI; this page edits only the data-driven fields.
+            Keep your profile concise, authentic, and focused on the value you create through technology.
           </div>
         </div>
       </div>

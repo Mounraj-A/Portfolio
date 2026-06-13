@@ -10,7 +10,7 @@ const nav = [
   { to: '/admin/certificates', label: 'Certificates', iconKey: 'certificates' },
   { to: '/admin/skills', label: 'Skills', iconKey: 'skills' },
   { to: '/admin/about', label: 'About', iconKey: 'about' },
-  { to: '/admin/resume', label: 'Resume', iconKey: 'resume' },
+
   { to: '/admin/contact', label: 'Contact', iconKey: 'contact' },
   { to: '/admin/services', label: 'Services', iconKey: 'services' },
   { to: '/admin/achievements', label: 'Achievements', iconKey: 'achievements' },

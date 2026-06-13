@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
                 <span className="gradient-text">Welcome back</span>
               </h1>
               <p className="mt-2 text-sm text-muted">
-                Sign in to manage your portfolio content.
+                Access your portfolio dashboard and manage content securely.
               </p>
 
               <form onSubmit={onSubmit} className="mt-7 grid gap-4">
@@ -71,8 +71,8 @@ export default function AdminLoginPage() {
                         setForm((p) => ({ ...p, username: e.target.value }))
                       }
                       className="w-full bg-transparent text-sm text-text placeholder:text-muted/60 outline-none"
-                      placeholder="admin"
-                      autoComplete="username"
+                      placeholder="Admin"
+                      //autoComplete="username"
                       required
                     />
                   </div>
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
                         setForm((p) => ({ ...p, password: e.target.value }))
                       }
                       className="w-full bg-transparent text-sm text-text placeholder:text-muted/60 outline-none"
-                      placeholder="admin123"
+                      placeholder="Hello"
                       autoComplete="current-password"
                       required
                     />
@@ -117,9 +117,7 @@ export default function AdminLoginPage() {
                 {status ? <div className="text-xs text-red-300">{status}</div> : null}
 
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-muted">
-                  Username is <span className="text-text">admin</span>. Configure
-                  <span className="text-text"> VITE_ADMIN_PASSWORD</span> in your
-                  environment before deployment.
+                  Authorized administrators only. Ensure your account credentials remain secure and confidential.
                 </div>
               </form>
             </div>

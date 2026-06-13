@@ -16,7 +16,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { state } = usePortfolio()
-  const resumeUrl = state.resume?.pdfUrl || '/resume.pdf'
+  const resumeUrl = '/resume.pdf'
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10)
@@ -47,20 +47,18 @@ export default function Navbar() {
   return (
     <header className={`sticky top-0 z-50 ${chrome}`}>
       <div className="container-x">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-20 items-center justify-between">
           <button
             type="button"
             onClick={() => onNav('home')}
-            className="group inline-flex items-center gap-2"
+            className="inline-flex items-center"
             aria-label="Go to home"
           >
-            <span className="relative text-sm font-bold tracking-wide">
-              <span className="font-poppins text-base">
-                <span className="gradient-text">Mounraj</span>
-                <span className="text-muted">.dev</span>
-              </span>
-              <span className="pointer-events-none absolute -bottom-2 left-0 h-px w-0 bg-gradient-to-r from-accentCyan via-accentBlue to-accentPurple transition-all duration-300 group-hover:w-full" />
-            </span>
+            <img
+              src="/logo.png"
+              alt="Mounraj logo"
+              className="h-20 w-auto object-contain"
+            />
           </button>
 
           <nav className="hidden items-center gap-1 md:flex">

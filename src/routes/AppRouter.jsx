@@ -10,7 +10,7 @@ import AdminProjectsPage from '../admin/pages/AdminProjectsPage.jsx'
 import AdminCertificatesPage from '../admin/pages/AdminCertificatesPage.jsx'
 import AdminSkillsPage from '../admin/pages/AdminSkillsPage.jsx'
 import AdminAboutPage from '../admin/pages/AdminAboutPage.jsx'
-import AdminResumePage from '../admin/pages/AdminResumePage.jsx'
+
 import AdminContactPage from '../admin/pages/AdminContactPage.jsx'
 import AdminServicesPage from '../admin/pages/AdminServicesPage.jsx'
 import AdminAchievementsPage from '../admin/pages/AdminAchievementsPage.jsx'
@@ -37,7 +37,7 @@ export default function AppRouter() {
         <Route path="certificates" element={<AdminCertificatesPage />} />
         <Route path="skills" element={<AdminSkillsPage />} />
         <Route path="about" element={<AdminAboutPage />} />
-        <Route path="resume" element={<AdminResumePage />} />
+
         <Route path="contact" element={<AdminContactPage />} />
         <Route path="services" element={<AdminServicesPage />} />
         <Route path="achievements" element={<AdminAchievementsPage />} />

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ImagePlus, X } from 'lucide-react'
-import { fileToDataUrl } from '../../../storage/storage.js'
+import { uploadImage } from '../../../api/cloudinary.js'
 
 function Field({ label, children, hint }) {
   return (
@@ -56,12 +56,15 @@ export default function CertificateFormModal({
     setStatus('')
     try {
       setBusy(true)
-      const dataUrl = await fileToDataUrl(file)
-      setForm((p) => ({ ...p, image: dataUrl }))
+      setStatus('Uploading…')
+      const secureUrl = await uploadImage(file)
+      setForm((p) => ({ ...p, image: secureUrl }))
+      setStatus('Uploaded')
     } catch (err) {
       setStatus(err instanceof Error ? err.message : 'Failed to read file')
     } finally {
       setBusy(false)
+      if (e?.target) e.target.value = ''
     }
   }
 
@@ -191,7 +194,7 @@ export default function CertificateFormModal({
                       </div>
                     </Field>
 
-                    <Field label="Certificate image" hint="Base64 + LocalStorage">
+                    <Field label="Certificate image" hint="Cloudinary Upload">
                       <div className="grid gap-3">
                         <input
                           ref={fileRef}

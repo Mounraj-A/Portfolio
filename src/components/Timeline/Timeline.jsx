@@ -12,8 +12,8 @@ export default function Timeline() {
     <section id="timeline" className="section scroll-mt-24">
       <SectionHeader
         eyebrow="Experience Timeline"
-        title="Progress that compounds"
-        subtitle="A quick look at how my interests evolved into full-stack and AI work."
+        title="Journey of Innovation"
+      // subtitle="From foundational learning to developing scalable applications and intelligent systems."
       />
 
       <div className="container-x mt-12">

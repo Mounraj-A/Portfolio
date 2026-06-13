@@ -96,8 +96,8 @@ export default function Certifications() {
     <section id="certifications" className="section scroll-mt-24">
       <SectionHeader
         eyebrow="Certifications"
-        title="Proof of learning"
-        subtitle="A snapshot of certifications and workshops that strengthened my fundamentals and hands-on skills."
+        title="Knowledge & Growth"
+      // subtitle="Certifications and workshops that showcase my dedication to skill development."
       />
 
       <div className="container-x mt-12">

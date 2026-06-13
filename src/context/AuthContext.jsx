@@ -1,41 +1,49 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { STORAGE_KEYS } from '../storage/keys.js'
-import { loadJson, removeKey, saveJson } from '../storage/storage.js'
+import { fetchSettings, updateSettings } from '../services/settingsService.js'
 
 const AuthContext = createContext(null)
 
-function loadInitialAuth() {
-  const stored = loadJson(STORAGE_KEYS.auth, null)
-  if (!stored || typeof stored !== 'object') return { isAuthed: false, username: '' }
-  return {
-    isAuthed: Boolean(stored.isAuthed),
-    username: typeof stored.username === 'string' ? stored.username : '',
-  }
-}
+const TEMP_ADMIN_PASSWORD = 'admin123'
 
-function loadPassword() {
-  const stored = loadJson(STORAGE_KEYS.adminPassword, null)
+function loadPasswordFromEnv() {
   const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
-  if (typeof stored === 'string' && stored.length) return stored
   if (typeof envPassword === 'string' && envPassword.length) return envPassword
   return ''
 }
 
 export function AuthProvider({ children }) {
-  const [auth, setAuth] = useState(loadInitialAuth)
-  const [password, setPassword] = useState(loadPassword)
+  const [auth, setAuth] = useState({ isAuthed: false, username: '' })
+  const [password, setPassword] = useState(loadPasswordFromEnv() || TEMP_ADMIN_PASSWORD)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    saveJson(STORAGE_KEYS.auth, auth)
-  }, [auth])
-
-  useEffect(() => {
-    saveJson(STORAGE_KEYS.adminPassword, password)
-  }, [password])
+    let active = true
+    ;(async () => {
+      try {
+        const settings = await fetchSettings()
+        const fromDb = settings?.adminPassword
+        const fromEnv = loadPasswordFromEnv()
+        if (!active) return
+        setPassword(fromDb || fromEnv || TEMP_ADMIN_PASSWORD)
+      } catch {
+        if (!active) return
+        const fromEnv = loadPasswordFromEnv()
+        setPassword(fromEnv || TEMP_ADMIN_PASSWORD)
+      } finally {
+        if (active) setReady(true)
+      }
+    })()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const actions = useMemo(() => {
     return {
       login({ username, password: inputPassword }) {
+        if (!ready) {
+          return { ok: false, message: 'Loading admin settings…' }
+        }
         if (!password) {
           return { ok: false, message: 'Admin password is not configured' }
         }
@@ -46,22 +54,29 @@ export function AuthProvider({ children }) {
       },
       logout() {
         setAuth({ isAuthed: false, username: '' })
-        removeKey(STORAGE_KEYS.auth)
       },
-      changePassword({ currentPassword, newPassword }) {
+      async changePassword({ currentPassword, newPassword }) {
+        if (!ready) {
+          return { ok: false, message: 'Loading admin settings…' }
+        }
         if (currentPassword !== password) {
           return { ok: false, message: 'Current password is incorrect' }
         }
         if (!newPassword || newPassword.length < 6) {
           return { ok: false, message: 'New password must be at least 6 characters' }
         }
-        setPassword(newPassword)
-        return { ok: true }
+        try {
+          const updated = await updateSettings({ adminPassword: newPassword })
+          setPassword(updated.adminPassword || newPassword)
+          return { ok: true }
+        } catch (e) {
+          return { ok: false, message: e?.message || 'Failed to update password' }
+        }
       },
     }
-  }, [password])
+  }, [password, ready])
 
-  const value = useMemo(() => ({ auth, actions }), [auth, actions])
+  const value = useMemo(() => ({ auth, actions, ready }), [auth, actions, ready])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

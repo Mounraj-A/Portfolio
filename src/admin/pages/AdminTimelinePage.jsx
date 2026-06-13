@@ -14,6 +14,39 @@ export default function AdminTimelinePage() {
   const [openAdd, setOpenAdd] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [deleteItem, setDeleteItem] = useState(null)
+  const [pageError, setPageError] = useState('')
+
+  async function handleAdd(payload) {
+    setPageError('')
+    const res = await actions.addTimelineItem(payload)
+    if (res?.ok) {
+      setOpenAdd(false)
+    } else {
+      setPageError(res?.message || 'Failed to add timeline item. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdate(payload) {
+    setPageError('')
+    const res = await actions.updateTimelineItem({ ...editItem, ...payload })
+    if (res?.ok) {
+      setEditItem(null)
+    } else {
+      setPageError(res?.message || 'Failed to update timeline item.')
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteItem?.id) return
+    setPageError('')
+    const res = await actions.deleteTimelineItem(deleteItem.id)
+    if (res?.ok) {
+      setDeleteItem(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete timeline item.')
+      setDeleteItem(null)
+    }
+  }
 
   return (
     <AdminPageTransition>
@@ -26,7 +59,7 @@ export default function AdminTimelinePage() {
                 <span className="gradient-text">Timeline Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Add, edit, and delete Timeline items. Updates sync to LocalStorage and reflect instantly in your portfolio Timeline section.
+                Showcase significant milestones, achievements, and professional growth throughout your development journey.
               </p>
             </div>
 
@@ -41,6 +74,12 @@ export default function AdminTimelinePage() {
               Add Item
             </motion.button>
           </div>
+
+          {pageError ? (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+              {pageError}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -56,9 +95,9 @@ export default function AdminTimelinePage() {
 
         {!items.length ? (
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
-            <div className="text-sm font-semibold">No timeline items yet</div>
+            <div className="text-sm font-semibold">Your journey starts here</div>
             <div className="mt-2 text-sm text-muted">
-              Click <span className="text-text">Add Item</span> to create your first one.
+              Create a timeline of accomplishments, learning experiences, certifications, and impactful projects to showcase your growth as a developer.
             </div>
           </div>
         ) : null}
@@ -66,7 +105,7 @@ export default function AdminTimelinePage() {
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Tip</div>
           <div className="mt-2 text-sm text-muted">
-            Keep the year short (e.g. 2024) and the description concise.
+            Focus on achievements that reflect your skills, experience, and continuous learning to create a compelling professional story.
           </div>
         </div>
       </div>
@@ -75,10 +114,7 @@ export default function AdminTimelinePage() {
         open={openAdd}
         mode="add"
         onClose={() => setOpenAdd(false)}
-        onSubmit={(payload) => {
-          actions.addTimelineItem(payload)
-          setOpenAdd(false)
-        }}
+        onSubmit={handleAdd}
       />
 
       <TimelineFormModal
@@ -86,20 +122,14 @@ export default function AdminTimelinePage() {
         mode="edit"
         initialItem={editItem}
         onClose={() => setEditItem(null)}
-        onSubmit={(payload) => {
-          actions.updateTimelineItem({ ...editItem, ...payload })
-          setEditItem(null)
-        }}
+        onSubmit={handleUpdate}
       />
 
       <TimelineDeleteModal
         open={Boolean(deleteItem)}
         item={deleteItem}
         onClose={() => setDeleteItem(null)}
-        onConfirm={() => {
-          if (deleteItem?.id) actions.deleteTimelineItem(deleteItem.id)
-          setDeleteItem(null)
-        }}
+        onConfirm={handleDelete}
       />
     </AdminPageTransition>
   )

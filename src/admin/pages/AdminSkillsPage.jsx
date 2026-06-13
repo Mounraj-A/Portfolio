@@ -18,8 +18,76 @@ export default function AdminSkillsPage() {
   const [deleteGroup, setDeleteGroup] = useState(null)
 
   const [addSkillGroup, setAddSkillGroup] = useState(null)
-  const [editSkill, setEditSkill] = useState(null) // { group, skill }
-  const [deleteSkill, setDeleteSkill] = useState(null) // { group, skill }
+  const [editSkill, setEditSkill] = useState(null)
+  const [deleteSkill, setDeleteSkill] = useState(null)
+
+  const [pageError, setPageError] = useState('')
+
+  async function handleAddGroup(payload) {
+    setPageError('')
+    const res = await actions.addSkillGroup({ ...payload, items: [] })
+    if (res?.ok) {
+      setOpenAddGroup(false)
+    } else {
+      setPageError(res?.message || 'Failed to add skill group. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdateGroup(payload) {
+    setPageError('')
+    const res = await actions.updateSkillGroup({ ...editGroup, ...payload, items: editGroup?.items || [] })
+    if (res?.ok) {
+      setEditGroup(null)
+    } else {
+      setPageError(res?.message || 'Failed to update skill group.')
+    }
+  }
+
+  async function handleDeleteGroup() {
+    if (!deleteGroup?.id) return
+    setPageError('')
+    const res = await actions.deleteSkillGroup(deleteGroup.id)
+    if (res?.ok) {
+      setDeleteGroup(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete skill group.')
+      setDeleteGroup(null)
+    }
+  }
+
+  async function handleAddSkill(payload) {
+    if (!addSkillGroup?.id) return
+    setPageError('')
+    const res = await actions.addSkill(addSkillGroup.id, payload)
+    if (res?.ok) {
+      setAddSkillGroup(null)
+    } else {
+      setPageError(res?.message || 'Failed to add skill. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdateSkill(payload) {
+    if (!editSkill?.group?.id) return
+    setPageError('')
+    const res = await actions.updateSkill(editSkill.group.id, { ...editSkill.skill, ...payload })
+    if (res?.ok) {
+      setEditSkill(null)
+    } else {
+      setPageError(res?.message || 'Failed to update skill.')
+    }
+  }
+
+  async function handleDeleteSkill() {
+    if (!deleteSkill?.group?.id || !deleteSkill?.skill?.id) return
+    setPageError('')
+    const res = await actions.deleteSkill(deleteSkill.group.id, deleteSkill.skill.id)
+    if (res?.ok) {
+      setDeleteSkill(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete skill.')
+      setDeleteSkill(null)
+    }
+  }
 
   return (
     <AdminPageTransition>
@@ -32,7 +100,7 @@ export default function AdminSkillsPage() {
                 <span className="gradient-text">Skills Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Create and manage skill groups and skill items. Updates sync to LocalStorage and reflect instantly in your portfolio Skills section.
+                Present your technical strengths with clarity and confidence.
               </p>
             </div>
 
@@ -47,6 +115,12 @@ export default function AdminSkillsPage() {
               Add Group
             </motion.button>
           </div>
+
+          {pageError ? (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+              {pageError}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-5 lg:grid-cols-2">
@@ -67,15 +141,14 @@ export default function AdminSkillsPage() {
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
             <div className="text-sm font-semibold">No skill groups yet</div>
             <div className="mt-2 text-sm text-muted">
-              Click <span className="text-text">Add Group</span> to create your first category.
+              Organize your expertise by creating your first skill category.
             </div>
           </div>
         ) : null}
 
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Tip</div>
-          <div className="mt-2 text-sm text-muted">
-            Icons use <span className="text-text">iconKey</span> values from your registry. Level is a 0–100 percentage.
+          <div className="mt-2 text-sm text-muted">Focus on skills you actively use and continuously improve.
           </div>
         </div>
       </div>
@@ -84,10 +157,7 @@ export default function AdminSkillsPage() {
         open={openAddGroup}
         mode="add"
         onClose={() => setOpenAddGroup(false)}
-        onSubmit={(payload) => {
-          actions.addSkillGroup({ ...payload, items: [] })
-          setOpenAddGroup(false)
-        }}
+        onSubmit={handleAddGroup}
       />
 
       <SkillGroupFormModal
@@ -95,10 +165,7 @@ export default function AdminSkillsPage() {
         mode="edit"
         initialGroup={editGroup}
         onClose={() => setEditGroup(null)}
-        onSubmit={(payload) => {
-          actions.updateSkillGroup({ ...editGroup, ...payload, items: editGroup?.items || [] })
-          setEditGroup(null)
-        }}
+        onSubmit={handleUpdateGroup}
       />
 
       <SkillFormModal
@@ -106,10 +173,7 @@ export default function AdminSkillsPage() {
         mode="add"
         groupTitle={addSkillGroup?.title}
         onClose={() => setAddSkillGroup(null)}
-        onSubmit={(payload) => {
-          if (addSkillGroup?.id) actions.addSkill(addSkillGroup.id, payload)
-          setAddSkillGroup(null)
-        }}
+        onSubmit={handleAddSkill}
       />
 
       <SkillFormModal
@@ -118,10 +182,7 @@ export default function AdminSkillsPage() {
         groupTitle={editSkill?.group?.title}
         initialSkill={editSkill?.skill}
         onClose={() => setEditSkill(null)}
-        onSubmit={(payload) => {
-          if (editSkill?.group?.id) actions.updateSkill(editSkill.group.id, { ...editSkill.skill, ...payload })
-          setEditSkill(null)
-        }}
+        onSubmit={handleUpdateSkill}
       />
 
       <SkillsDeleteModal
@@ -129,14 +190,11 @@ export default function AdminSkillsPage() {
         title="Delete group"
         description={
           deleteGroup
-            ? `This will remove “${deleteGroup.title}” and all its skills from your portfolio.`
+            ? `This will remove "${deleteGroup.title}" and all its skills from your portfolio.`
             : ''
         }
         onClose={() => setDeleteGroup(null)}
-        onConfirm={() => {
-          if (deleteGroup?.id) actions.deleteSkillGroup(deleteGroup.id)
-          setDeleteGroup(null)
-        }}
+        onConfirm={handleDeleteGroup}
       />
 
       <SkillsDeleteModal
@@ -144,16 +202,11 @@ export default function AdminSkillsPage() {
         title="Delete skill"
         description={
           deleteSkill
-            ? `This will remove “${deleteSkill.skill?.name}” from “${deleteSkill.group?.title}”.`
+            ? `This will remove "${deleteSkill.skill?.name}" from "${deleteSkill.group?.title}".`
             : ''
         }
         onClose={() => setDeleteSkill(null)}
-        onConfirm={() => {
-          if (deleteSkill?.group?.id && deleteSkill?.skill?.id) {
-            actions.deleteSkill(deleteSkill.group.id, deleteSkill.skill.id)
-          }
-          setDeleteSkill(null)
-        }}
+        onConfirm={handleDeleteSkill}
       />
     </AdminPageTransition>
   )

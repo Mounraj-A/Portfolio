@@ -7,6 +7,11 @@ A modern premium developer portfolio built with **React + Vite**, **Tailwind CSS
 - Tailwind CSS
 - Framer Motion
 - react-icons + lucide-react
+
+## Admin Login
+- Username: admin
+- Temporary password: admin123
+- Set VITE_ADMIN_PASSWORD to override the temporary password for deployment.
 # EmailJS configuration (client-side)
 # Create an EmailJS account: https://www.emailjs.com/
 # Then create a service + email template, and paste the IDs here.

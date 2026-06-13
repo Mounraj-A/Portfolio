@@ -27,8 +27,8 @@ export default function Skills() {
     <section id="skills" className="section scroll-mt-24">
       <SectionHeader
         eyebrow="Skills"
-        title="A modern full-stack toolkit"
-        subtitle="Frontend, backend, databases, tools, and AI/ML — presented with a premium UI and smooth motion."
+        title="Technology Stack"
+      //subtitle="Crafting impactful solutions with a modern full-stack technology stack."
       />
 
       <div className="container-x mt-12">
@@ -49,46 +49,46 @@ export default function Skills() {
             return (
               <MotionReveal key={group.title} delay={0.06 * idx}>
                 <GlassCard className="w-full p-6 sm:p-7 hover:border-white/20">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                      <GroupIcon className="h-6 w-6 text-accentCyan" />
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+                        <GroupIcon className="h-6 w-6 text-accentCyan" />
+                      </div>
+                      <div>
+                        <h3 className="font-poppins text-lg font-bold">{group.title}</h3>
+                        <p className="text-xs text-muted">Focused, practical experience</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-poppins text-lg font-bold">{group.title}</h3>
-                      <p className="text-xs text-muted">Focused, practical experience</p>
-                    </div>
+                    <span className="chip">{group.items.length} skills</span>
                   </div>
-                  <span className="chip">{group.items.length} skills</span>
-                </div>
 
-                <div className={`mt-6 grid gap-4 ${smCols} ${lgCols}`}>
-                  {group.items.map((s) => {
-                    const SkillIcon = getIconByKey(s.iconKey, 'code2')
-                    return (
-                      <motion.div
-                        key={s.id || s.name}
-                        className="rounded-2xl border border-white/10 bg-white/5 p-4"
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ duration: 0.18 }}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
-                              <SkillIcon className="h-5 w-5 text-text" />
+                  <div className={`mt-6 grid gap-4 ${smCols} ${lgCols}`}>
+                    {group.items.map((s) => {
+                      const SkillIcon = getIconByKey(s.iconKey, 'code2')
+                      return (
+                        <motion.div
+                          key={s.id || s.name}
+                          className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                          whileHover={{ scale: 1.02 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                                <SkillIcon className="h-5 w-5 text-text" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold">{s.name}</div>
+                                <div className="text-xs text-muted">Proficiency</div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-sm font-semibold">{s.name}</div>
-                              <div className="text-xs text-muted">Proficiency</div>
-                            </div>
+                            <div className="text-xs font-semibold text-muted">{s.level}%</div>
                           </div>
-                          <div className="text-xs font-semibold text-muted">{s.level}%</div>
-                        </div>
-                        <Progress value={s.level} />
-                      </motion.div>
-                    )
-                  })}
-                </div>
+                          <Progress value={s.level} />
+                        </motion.div>
+                      )
+                    })}
+                  </div>
                 </GlassCard>
               </MotionReveal>
             )

@@ -57,3 +57,60 @@
 .bg-premium {
   background-image: theme('backgroundImage.hero-radial');
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECURITY — CSS-level protections
+   These rules are the first line of defence (before JS event listeners load).
+────────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Disable text selection globally */
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection in form elements so users can fill them out */
+input,
+textarea,
+select,
+[contenteditable='true'],
+[contenteditable=''] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* 2. Disable image dragging */
+img,
+svg,
+video,
+canvas {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none; /* blocks drag + context menu on images */
+}
+
+/* Re-enable pointer events on interactive elements that contain images
+   (buttons, anchors with images inside them) */
+a img,
+button img,
+a svg,
+button svg {
+  pointer-events: none; /* keep image itself blocked */
+}
+
+a,
+button {
+  pointer-events: auto; /* ensure links/buttons still work */
+}
+
+/* 3. Disable text cursor on non-interactive text */
+p, h1, h2, h3, h4, h5, h6, span, li, div {
+  cursor: default;
+}
+

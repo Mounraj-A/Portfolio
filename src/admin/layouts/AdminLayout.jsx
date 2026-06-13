@@ -12,7 +12,7 @@ function titleFromPath(pathname) {
     certificates: 'Certificates',
     skills: 'Skills',
     about: 'About',
-    resume: 'Resume',
+
     contact: 'Contact',
     settings: 'Settings',
   }

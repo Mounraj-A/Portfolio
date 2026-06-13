@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import AdminPageTransition from '../components/AdminPageTransition.jsx'
@@ -13,10 +13,47 @@ export default function AdminCertificatesPage() {
 
   const certs = useMemo(() => state.certificates || [], [state.certificates])
 
+  useEffect(() => {
+    void actions?.refreshCertificates?.()
+  }, [actions])
+
   const [openAdd, setOpenAdd] = useState(false)
   const [editCert, setEditCert] = useState(null)
   const [previewCert, setPreviewCert] = useState(null)
   const [deleteCert, setDeleteCert] = useState(null)
+  const [pageError, setPageError] = useState('')
+
+  async function handleAdd(payload) {
+    setPageError('')
+    const res = await actions.addCertificate(payload)
+    if (res?.ok) {
+      setOpenAdd(false)
+    } else {
+      setPageError(res?.message || 'Failed to add certificate. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdate(payload) {
+    setPageError('')
+    const res = await actions.updateCertificate({ ...editCert, ...payload })
+    if (res?.ok) {
+      setEditCert(null)
+    } else {
+      setPageError(res?.message || 'Failed to update certificate.')
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteCert?.id) return
+    setPageError('')
+    const res = await actions.deleteCertificate(deleteCert.id)
+    if (res?.ok) {
+      setDeleteCert(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete certificate.')
+      setDeleteCert(null)
+    }
+  }
 
   return (
     <AdminPageTransition>
@@ -29,7 +66,7 @@ export default function AdminCertificatesPage() {
                 <span className="gradient-text">Certificates Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Add, edit, delete, upload images, and preview. Updates sync to LocalStorage and reflect instantly in your portfolio Certifications section.
+                Highlight the certifications that support your professional journey.
               </p>
             </div>
 
@@ -44,6 +81,12 @@ export default function AdminCertificatesPage() {
               Add Certificate
             </motion.button>
           </div>
+
+          {pageError ? (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+              {pageError}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-5 md:grid-cols-3">
@@ -62,7 +105,7 @@ export default function AdminCertificatesPage() {
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
             <div className="text-sm font-semibold">No certificates yet</div>
             <div className="mt-2 text-sm text-muted">
-              Click <span className="text-text">Add Certificate</span> to create your first one.
+              Showcase your verified skills and credentials.
             </div>
           </div>
         ) : null}
@@ -70,7 +113,7 @@ export default function AdminCertificatesPage() {
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Tip</div>
           <div className="mt-2 text-sm text-muted">
-            Certificate images are stored as Base64 in LocalStorage. Use Settings → Export as a backup.
+            Quality credentials leave a lasting professional impression.
           </div>
         </div>
       </div>
@@ -79,10 +122,7 @@ export default function AdminCertificatesPage() {
         open={openAdd}
         mode="add"
         onClose={() => setOpenAdd(false)}
-        onSubmit={(payload) => {
-          actions.addCertificate(payload)
-          setOpenAdd(false)
-        }}
+        onSubmit={handleAdd}
       />
 
       <CertificateFormModal
@@ -90,10 +130,7 @@ export default function AdminCertificatesPage() {
         mode="edit"
         initialCert={editCert}
         onClose={() => setEditCert(null)}
-        onSubmit={(payload) => {
-          actions.updateCertificate({ ...editCert, ...payload })
-          setEditCert(null)
-        }}
+        onSubmit={handleUpdate}
       />
 
       <CertificatePreviewModal
@@ -106,10 +143,7 @@ export default function AdminCertificatesPage() {
         open={Boolean(deleteCert)}
         cert={deleteCert}
         onClose={() => setDeleteCert(null)}
-        onConfirm={() => {
-          if (deleteCert?.id) actions.deleteCertificate(deleteCert.id)
-          setDeleteCert(null)
-        }}
+        onConfirm={handleDelete}
       />
     </AdminPageTransition>
   )

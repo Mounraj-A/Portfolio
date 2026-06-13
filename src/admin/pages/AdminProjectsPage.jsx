@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import AdminPageTransition from '../components/AdminPageTransition.jsx'
@@ -24,7 +24,7 @@ function ensureProjectForPortfolio(p) {
 }
 
 export default function AdminProjectsPage() {
-  const { state, actions } = usePortfolio()
+  const { state, actions, status } = usePortfolio()
 
   const projects = useMemo(() => state.projects || [], [state.projects])
 
@@ -32,6 +32,43 @@ export default function AdminProjectsPage() {
   const [editProject, setEditProject] = useState(null)
   const [previewProject, setPreviewProject] = useState(null)
   const [deleteProject, setDeleteProject] = useState(null)
+  const [pageError, setPageError] = useState('')
+
+  useEffect(() => {
+    void actions.refreshProjects?.()
+  }, [actions])
+
+  async function handleAdd(payload) {
+    setPageError('')
+    const res = await actions.addProject(ensureProjectForPortfolio(payload))
+    if (res?.ok) {
+      setOpenAdd(false)
+    } else {
+      setPageError(res?.message || 'Failed to add project. Check Firebase rules.')
+    }
+  }
+
+  async function handleUpdate(payload) {
+    setPageError('')
+    const res = await actions.updateProject(ensureProjectForPortfolio({ ...editProject, ...payload }))
+    if (res?.ok) {
+      setEditProject(null)
+    } else {
+      setPageError(res?.message || 'Failed to update project.')
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleteProject?.id) return
+    setPageError('')
+    const res = await actions.deleteProject(deleteProject.id)
+    if (res?.ok) {
+      setDeleteProject(null)
+    } else {
+      setPageError(res?.message || 'Failed to delete project.')
+      setDeleteProject(null)
+    }
+  }
 
   return (
     <AdminPageTransition>
@@ -44,7 +81,7 @@ export default function AdminProjectsPage() {
                 <span className="gradient-text">Projects Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Add, edit, delete, upload images, and preview. Updates sync to LocalStorage and reflect instantly in your existing portfolio Projects section.
+                Present meaningful projects that reflect your expertise and problem-solving ability.
               </p>
             </div>
 
@@ -61,6 +98,12 @@ export default function AdminProjectsPage() {
               </motion.button>
             </div>
           </div>
+
+          {pageError ? (
+            <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+              {pageError}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
@@ -75,11 +118,11 @@ export default function AdminProjectsPage() {
           ))}
         </div>
 
-        {!projects.length ? (
+        {!projects.length && !status?.bootstrapping ? (
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
             <div className="text-sm font-semibold">No projects yet</div>
             <div className="mt-2 text-sm text-muted">
-              Click <span className="text-text">Add Project</span> to create your first one.
+              Showcase the work you're most proud of.
             </div>
           </div>
         ) : null}
@@ -87,7 +130,7 @@ export default function AdminProjectsPage() {
         <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
           <div className="text-sm font-semibold">Tip</div>
           <div className="mt-2 text-sm text-muted">
-            Images are stored as Base64 in LocalStorage for a frontend-only CMS. Use Settings → Export as a backup.
+            Quality projects speak louder than quantity.
           </div>
         </div>
       </div>
@@ -96,10 +139,7 @@ export default function AdminProjectsPage() {
         open={openAdd}
         mode="add"
         onClose={() => setOpenAdd(false)}
-        onSubmit={(payload) => {
-          actions.addProject(ensureProjectForPortfolio(payload))
-          setOpenAdd(false)
-        }}
+        onSubmit={handleAdd}
       />
 
       <ProjectFormModal
@@ -107,10 +147,7 @@ export default function AdminProjectsPage() {
         mode="edit"
         initialProject={editProject}
         onClose={() => setEditProject(null)}
-        onSubmit={(payload) => {
-          actions.updateProject(ensureProjectForPortfolio({ ...editProject, ...payload }))
-          setEditProject(null)
-        }}
+        onSubmit={handleUpdate}
       />
 
       <ProjectPreviewModal
@@ -123,10 +160,7 @@ export default function AdminProjectsPage() {
         open={Boolean(deleteProject)}
         project={deleteProject}
         onClose={() => setDeleteProject(null)}
-        onConfirm={() => {
-          if (deleteProject?.id) actions.deleteProject(deleteProject.id)
-          setDeleteProject(null)
-        }}
+        onConfirm={handleDelete}
       />
     </AdminPageTransition>
   )

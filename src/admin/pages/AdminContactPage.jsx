@@ -100,8 +100,8 @@ export default function AdminContactPage() {
     setForm((p) => ({ ...p, social: { ...p.social, [key]: value } }))
   }
 
-  function handleSave() {
-    setStatus('')
+  async function handleSave() {
+    setStatus('Saving…')
 
     const payload = {
       ...(state.contact || {}),
@@ -129,8 +129,8 @@ export default function AdminContactPage() {
       })),
     }
 
-    actions.setContact(payload)
-    setStatus('Saved')
+    const res = await actions.setContact(payload)
+    setStatus(res?.ok ? 'Saved' : res?.message || 'Failed to save')
     window.setTimeout(() => setStatus(''), 1500)
   }
 
@@ -154,8 +154,7 @@ export default function AdminContactPage() {
                 <span className="gradient-text">Contact Management</span>
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
-                Edit the content used by your portfolio Contact section and footer social icons.
-              </p>
+                Create opportunities for meaningful connections.</p>
             </div>
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
@@ -194,14 +193,14 @@ export default function AdminContactPage() {
                 <Input
                   value={form.sectionHeader.title}
                   onChange={(e) => setSectionHeader('title', e.target.value)}
-                  placeholder="Let’s build something premium"
+                  placeholder="Let's Build Something Meaningful"
                 />
               </Field>
               <Field label="Subtitle" hint="Short description">
                 <Textarea
                   value={form.sectionHeader.subtitle}
                   onChange={(e) => setSectionHeader('subtitle', e.target.value)}
-                  placeholder="Send a message for collaborations..."
+                  placeholder="Open to collaborations, opportunities, and innovative ideas..."
                   rows={4}
                 />
               </Field>
@@ -210,7 +209,7 @@ export default function AdminContactPage() {
 
           <div className="glass rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-7">
             <div className="text-sm font-semibold">Direct</div>
-            <p className="mt-2 text-sm text-muted">Used for the direct cards and mailto fallback.</p>
+            <p className="mt-2 text-sm text-muted">Your primary contact information.</p>
             <div className="mt-5 grid gap-5">
               <Field label="Email">
                 <Input
@@ -259,7 +258,7 @@ export default function AdminContactPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-sm font-semibold">Footer socials</div>
-                <p className="mt-2 text-sm text-muted">These icons show in the footer. Labels should be unique.</p>
+                <p className="mt-2 text-sm text-muted">Quick access links displayed across the portfolio.</p>
               </div>
 
               <motion.button

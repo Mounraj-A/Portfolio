@@ -72,7 +72,7 @@ export default function Hero() {
   return (
     <section id="home" className="relative overflow-hidden">
       <div className="container-x">
-        <div className="min-h-[92vh] grid items-center gap-10 py-20 lg:grid-cols-2 lg:py-28">
+        <div className="min-h-[92vh] grid items-end gap-10 py-20 lg:grid-cols-2 lg:py-28">
           <div>
             <MotionReveal>
               <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-muted backdrop-blur-xl">
@@ -100,8 +100,7 @@ export default function Hero() {
 
             <MotionReveal delay={0.22}>
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-                I build modern web applications, AI-powered systems,
-                and responsive digital experiences.
+                I design and develop modern web applications, AI-powered systems, and responsive digital experiences with a focus on innovation, performance, and user satisfaction.
               </p>
             </MotionReveal>
 

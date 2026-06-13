@@ -5,9 +5,7 @@ import AdminPageTransition from '../components/AdminPageTransition.jsx'
 import GlassCard from '../../components/GlassCard.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { usePortfolio } from '../../context/PortfolioContext.jsx'
-import { downloadJson, removeKey } from '../../storage/storage.js'
-import { STORAGE_KEYS } from '../../storage/keys.js'
-import { getDefaultPortfolioState } from '../../data/defaultPortfolio.js'
+import { downloadJson } from '../../storage/storage.js'
 import SkillsDeleteModal from '../components/skills/SkillsDeleteModal.jsx'
 
 export default function AdminSettingsPage() {
@@ -36,9 +34,11 @@ export default function AdminSettingsPage() {
   }
 
   function onReset() {
-    portfolioActions.replacePortfolio(getDefaultPortfolioState())
-    setDataStatus('Portfolio data reset to defaults.')
-    window.setTimeout(() => setDataStatus(''), 2500)
+    setDataStatus('')
+    void portfolioActions.resetToDefaults().then((res) => {
+      setDataStatus(res?.ok ? 'Portfolio data reset to defaults.' : res?.message || 'Failed to reset portfolio.')
+      window.setTimeout(() => setDataStatus(''), 2500)
+    })
   }
 
   async function onImportFile(file) {
@@ -50,8 +50,9 @@ export default function AdminSettingsPage() {
         setDataStatus('Invalid JSON file.')
         return
       }
-      portfolioActions.replacePortfolio(parsed)
-      setDataStatus('Imported portfolio data successfully.')
+      setDataStatus('Importing…')
+      const res = await portfolioActions.importPortfolio(parsed)
+      setDataStatus(res?.ok ? 'Imported portfolio data successfully.' : res?.message || 'Failed to import portfolio data.')
       window.setTimeout(() => setDataStatus(''), 2500)
     } catch (e) {
       setDataStatus(e?.message ? `Failed to import: ${e.message}` : 'Failed to import JSON.')
@@ -62,27 +63,31 @@ export default function AdminSettingsPage() {
     inputRef.current?.click()
   }
 
-  function onClearLocalStorage() {
-    removeKey(STORAGE_KEYS.portfolio)
-    portfolioActions.replacePortfolio(getDefaultPortfolioState())
-    setDataStatus('Cleared saved storage and loaded defaults.')
-    window.setTimeout(() => setDataStatus(''), 2500)
+  function onReloadFromFirestore() {
+    setDataStatus('')
+    void portfolioActions.reloadFromFirestore().then((res) => {
+      setDataStatus(res?.ok ? 'Reloaded portfolio from Firestore.' : res?.message || 'Failed to reload portfolio.')
+      window.setTimeout(() => setDataStatus(''), 2500)
+    })
   }
 
   function onChangePassword(e) {
     e.preventDefault()
     setSecurityStatus('')
-    const res = authActions.changePassword({
-      currentPassword: pw.current,
-      newPassword: pw.next,
-    })
-    if (!res.ok) {
-      setSecurityStatus(res.message || 'Failed to change password')
-      return
-    }
-    setPw({ current: '', next: '' })
-    setSecurityStatus('Admin password updated.')
-    window.setTimeout(() => setSecurityStatus(''), 2500)
+    void authActions
+      .changePassword({
+        currentPassword: pw.current,
+        newPassword: pw.next,
+      })
+      .then((res) => {
+        if (!res.ok) {
+          setSecurityStatus(res.message || 'Failed to change password')
+          return
+        }
+        setPw({ current: '', next: '' })
+        setSecurityStatus('Admin password updated.')
+        window.setTimeout(() => setSecurityStatus(''), 2500)
+      })
   }
 
   return (
@@ -91,12 +96,12 @@ export default function AdminSettingsPage() {
         <GlassCard className="p-6 sm:p-7 hover:border-white/20">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="chip">Data</div>
+              <div className="chip">Backup & Recovery</div>
               <div className="mt-4 font-poppins text-xl font-extrabold">
                 <span className="gradient-text">Import / Export</span>
               </div>
               <div className="mt-2 text-sm text-muted">
-                Backup and restore your portfolio data (LocalStorage).
+                Maintain and safeguard your portfolio information with import and export tools.
               </div>
               {lastUpdated ? (
                 <div className="mt-3 text-[11px] text-muted/70">Last updated: {lastUpdated}</div>
@@ -127,7 +132,7 @@ export default function AdminSettingsPage() {
               Import JSON
             </motion.button>
 
-            <motion.button
+            {/* <motion.button
               type="button"
               className="btn-secondary w-full justify-center"
               onClick={() => setConfirmReset(true)}
@@ -136,9 +141,9 @@ export default function AdminSettingsPage() {
             >
               <RefreshCcw className="h-4 w-4" />
               Reset Defaults
-            </motion.button>
+            </motion.button> */}
 
-            <motion.button
+            {/* <motion.button
               type="button"
               className="btn-secondary w-full justify-center"
               onClick={() => setConfirmClear(true)}
@@ -146,7 +151,7 @@ export default function AdminSettingsPage() {
               whileTap={{ scale: 0.98 }}
             >
               Clear Saved Key
-            </motion.button>
+            </motion.button> */}
           </div>
 
           <input
@@ -165,12 +170,12 @@ export default function AdminSettingsPage() {
         </GlassCard>
 
         <GlassCard className="p-6 sm:p-7 hover:border-white/20">
-          <div className="chip">Security</div>
+          <div className="chip">Administrator Access</div>
           <div className="mt-4 font-poppins text-xl font-extrabold">
             <span className="gradient-text">Change Password</span>
           </div>
           <div className="mt-2 text-sm text-muted">
-            Frontend-only auth for now (stored in LocalStorage).
+            Manage your administrator credentials and account security.
           </div>
 
           <form onSubmit={onChangePassword} className="mt-6 grid gap-4">
@@ -226,10 +231,10 @@ export default function AdminSettingsPage() {
       <SkillsDeleteModal
         open={confirmClear}
         title="Clear saved storage"
-        description="This removes the saved portfolio LocalStorage key and loads defaults immediately."
+        description="This reloads all portfolio data from Firestore, discarding any unsaved local changes."
         onClose={() => setConfirmClear(false)}
         onConfirm={() => {
-          onClearLocalStorage()
+          onReloadFromFirestore()
           setConfirmClear(false)
         }}
       />

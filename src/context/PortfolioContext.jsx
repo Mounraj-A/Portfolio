@@ -1,8 +1,50 @@
-import { createContext, useContext, useEffect, useMemo, useReducer } from 'react'
-import { STORAGE_KEYS } from '../storage/keys.js'
-import { loadJson, saveJson } from '../storage/storage.js'
+import { createContext, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import { getDefaultPortfolioState } from '../data/defaultPortfolio.js'
 import { makeId } from '../utils/ids.js'
+import {
+  fetchProjects,
+  addProject as createProject,
+  updateProject as editProject,
+  deleteProject as removeProject,
+} from '../services/projectService.js'
+import {
+  fetchServices,
+  addService as createService,
+  updateService as editService,
+  deleteService as removeService,
+} from '../services/serviceService.js'
+import {
+  fetchAchievements,
+  addAchievement as createAchievement,
+  updateAchievement as editAchievement,
+  deleteAchievement as removeAchievement,
+} from '../services/achievementService.js'
+import {
+  fetchCertificates,
+  addCertificate as createCertificate,
+  updateCertificate as editCertificate,
+  deleteCertificate as removeCertificate,
+} from '../services/certificateService.js'
+import {
+  fetchTimeline,
+  addTimeline as createTimelineItem,
+  updateTimeline as editTimelineItem,
+  deleteTimeline as removeTimelineItem,
+} from '../services/timelineService.js'
+import {
+  fetchSkillGroups,
+  addSkillGroup as createSkillGroup,
+  updateSkillGroup as editSkillGroup,
+  deleteSkillGroup as removeSkillGroup,
+  addSkill as createSkill,
+  updateSkill as editSkill,
+  deleteSkill as removeSkill,
+} from '../services/skillsService.js'
+import { fetchAbout, updateAbout } from '../services/aboutService.js'
+import { fetchContact, updateContact } from '../services/contactService.js'
+import { fetchResume, updateResume } from '../services/resumeService.js'
+import { fetchMeta, updateMeta } from '../services/metaService.js'
+import { replacePortfolioInFirestore } from '../services/portfolioSyncService.js'
 
 const PortfolioContext = createContext(null)
 
@@ -198,7 +240,7 @@ function normalizeContact(raw) {
 function portfolioReducer(state, action) {
   switch (action.type) {
     case 'PORTFOLIO_REPLACE':
-      return withUpdatedMeta({
+      return {
         ...action.payload,
         projects: Array.isArray(action.payload?.projects)
           ? action.payload.projects.map(normalizeProject)
@@ -219,7 +261,8 @@ function portfolioReducer(state, action) {
         timeline: Array.isArray(action.payload?.timeline)
           ? action.payload.timeline.map(normalizeTimelineItem)
           : action.payload?.timeline,
-      })
+        meta: action.payload?.meta || state?.meta || { lastUpdated: '' },
+      }
 
     case 'PROJECTS_SET':
       return withUpdatedMeta({
@@ -433,8 +476,7 @@ function portfolioReducer(state, action) {
 
 function createInitialState() {
   const fallback = getDefaultPortfolioState()
-  const stored = loadJson(STORAGE_KEYS.portfolio, null)
-  const next = stored && typeof stored === 'object' ? { ...fallback, ...stored } : fallback
+  const next = fallback
   return {
     ...next,
     projects: Array.isArray(next.projects) ? next.projects.map(normalizeProject) : next.projects,
@@ -456,112 +498,520 @@ function createInitialState() {
 export function PortfolioProvider({ children }) {
   const [state, dispatch] = useReducer(portfolioReducer, undefined, createInitialState)
 
+  const [status, setStatus] = useState({
+    bootstrapping: true,
+    error: '',
+    lastAction: '',
+    busy: false,
+  })
+
+  async function refreshAll() {
+    setStatus((s) => ({ ...s, bootstrapping: true, error: '' }))
+    try {
+      const settled = await Promise.allSettled([
+        fetchProjects(),
+        fetchServices(),
+        fetchAchievements(),
+        fetchCertificates(),
+        fetchTimeline(),
+        fetchSkillGroups(),
+        fetchAbout(),
+        fetchContact(),
+        fetchResume(),
+        fetchMeta(),
+      ])
+
+      const getValue = (index, fallback) =>
+        settled[index]?.status === 'fulfilled' ? settled[index].value : fallback
+
+      const errors = settled
+        .filter((r) => r.status === 'rejected')
+        .map((r) => r.reason?.message || String(r.reason))
+        .filter(Boolean)
+
+      const projects = getValue(0, state.projects || [])
+      const services = getValue(1, state.services || [])
+      const achievements = getValue(2, state.achievements || [])
+      const certificates = getValue(3, state.certificates || [])
+      const timeline = getValue(4, state.timeline || [])
+      const skillsGroups = getValue(5, state.skills?.groups || [])
+      const about = getValue(6, state.about || {})
+      const contact = getValue(7, state.contact || {})
+      const resume = getValue(8, state.resume || {})
+      const meta = getValue(9, state.meta || {})
+
+      dispatch({
+        type: 'PORTFOLIO_REPLACE',
+        payload: {
+          meta,
+          projects,
+          services,
+          achievements,
+          certificates,
+          timeline,
+          skills: { groups: skillsGroups },
+          about,
+          contact,
+          resume,
+        },
+      })
+
+      if (errors.length) {
+        setStatus((s) => ({
+          ...s,
+          error: `Some data failed to load: ${errors[0]}`,
+        }))
+      }
+    } catch (e) {
+      setStatus((s) => ({ ...s, error: e?.message || 'Failed to load Firestore data' }))
+    } finally {
+      setStatus((s) => ({ ...s, bootstrapping: false }))
+    }
+  }
+
   useEffect(() => {
-    saveJson(STORAGE_KEYS.portfolio, state)
-  }, [state])
+    void refreshAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const actions = useMemo(() => {
     return {
-      replacePortfolio(payload) {
-        dispatch({ type: 'PORTFOLIO_REPLACE', payload })
-      },
-      setProjects(payload) {
-        dispatch({ type: 'PROJECTS_SET', payload })
-      },
-      addProject(payload) {
-        dispatch({ type: 'PROJECT_ADD', payload })
-      },
-      updateProject(payload) {
-        dispatch({ type: 'PROJECT_UPDATE', payload })
-      },
-      deleteProject(projectId) {
-        dispatch({ type: 'PROJECT_DELETE', payload: projectId })
-      },
-      setCertificates(payload) {
-        dispatch({ type: 'CERTIFICATES_SET', payload })
-      },
-      addCertificate(payload) {
-        dispatch({ type: 'CERTIFICATE_ADD', payload })
-      },
-      updateCertificate(payload) {
-        dispatch({ type: 'CERTIFICATE_UPDATE', payload })
-      },
-      deleteCertificate(certificateId) {
-        dispatch({ type: 'CERTIFICATE_DELETE', payload: certificateId })
-      },
-      setSkills(payload) {
-        dispatch({ type: 'SKILLS_SET', payload })
-      },
-      addSkillGroup(payload) {
-        dispatch({ type: 'SKILL_GROUP_ADD', payload })
-      },
-      updateSkillGroup(payload) {
-        dispatch({ type: 'SKILL_GROUP_UPDATE', payload })
-      },
-      deleteSkillGroup(groupId) {
-        dispatch({ type: 'SKILL_GROUP_DELETE', payload: groupId })
-      },
-      addSkill(groupId, skill) {
-        dispatch({ type: 'SKILL_ADD', payload: { groupId, skill } })
-      },
-      updateSkill(groupId, skill) {
-        dispatch({ type: 'SKILL_UPDATE', payload: { groupId, skill } })
-      },
-      deleteSkill(groupId, skillId) {
-        dispatch({ type: 'SKILL_DELETE', payload: { groupId, skillId } })
-      },
-      setAbout(payload) {
-        dispatch({ type: 'ABOUT_SET', payload })
-      },
-      setResume(payload) {
-        dispatch({ type: 'RESUME_SET', payload })
-      },
-      setContact(payload) {
-        dispatch({ type: 'CONTACT_SET', payload })
+      async reloadFromFirestore() {
+        await refreshAll()
+        return { ok: true }
       },
 
-      setServices(payload) {
-        dispatch({ type: 'SERVICES_SET', payload })
-      },
-      addService(payload) {
-        dispatch({ type: 'SERVICE_ADD', payload })
-      },
-      updateService(payload) {
-        dispatch({ type: 'SERVICE_UPDATE', payload })
-      },
-      deleteService(serviceId) {
-        dispatch({ type: 'SERVICE_DELETE', payload: serviceId })
-      },
-
-      setAchievements(payload) {
-        dispatch({ type: 'ACHIEVEMENTS_SET', payload })
-      },
-      addAchievement(payload) {
-        dispatch({ type: 'ACHIEVEMENT_ADD', payload })
-      },
-      updateAchievement(payload) {
-        dispatch({ type: 'ACHIEVEMENT_UPDATE', payload })
-      },
-      deleteAchievement(achievementId) {
-        dispatch({ type: 'ACHIEVEMENT_DELETE', payload: achievementId })
+      async resetToDefaults() {
+        setStatus((s) => ({ ...s, busy: true, lastAction: 'reset', error: '' }))
+        try {
+          const defaults = getDefaultPortfolioState()
+          await replacePortfolioInFirestore(defaults)
+          await refreshAll()
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to reset portfolio' }))
+          return { ok: false, message: e?.message || 'Failed to reset portfolio' }
+        } finally {
+          setStatus((s) => ({ ...s, busy: false }))
+        }
       },
 
-      setTimeline(payload) {
-        dispatch({ type: 'TIMELINE_SET', payload })
+      async importPortfolio(payload) {
+        setStatus((s) => ({ ...s, busy: true, lastAction: 'import', error: '' }))
+        try {
+          await replacePortfolioInFirestore(payload)
+          await refreshAll()
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to import portfolio' }))
+          return { ok: false, message: e?.message || 'Failed to import portfolio' }
+        } finally {
+          setStatus((s) => ({ ...s, busy: false }))
+        }
       },
-      addTimelineItem(payload) {
-        dispatch({ type: 'TIMELINE_ADD', payload })
+
+      async refreshProjects() {
+        try {
+          const projects = await fetchProjects()
+          dispatch({ type: 'PROJECTS_SET', payload: projects })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh projects' }))
+          return { ok: false, message: e?.message || 'Failed to refresh projects' }
+        }
       },
-      updateTimelineItem(payload) {
-        dispatch({ type: 'TIMELINE_UPDATE', payload })
+
+      async addProject(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'project:add', error: '' }))
+        try {
+          const created = await createProject(payload)
+          dispatch({ type: 'PROJECT_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add project' }))
+          return { ok: false, message: e?.message || 'Failed to add project' }
+        }
       },
-      deleteTimelineItem(timelineId) {
-        dispatch({ type: 'TIMELINE_DELETE', payload: timelineId })
+
+      async updateProject(payload) {
+        const projectId = payload?.id
+        if (!projectId) return { ok: false, message: 'Missing project id' }
+        setStatus((s) => ({ ...s, lastAction: 'project:update', error: '' }))
+        try {
+          const updated = await editProject(projectId, payload)
+          dispatch({ type: 'PROJECT_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update project' }))
+          return { ok: false, message: e?.message || 'Failed to update project' }
+        }
+      },
+
+      async deleteProject(projectId) {
+        if (!projectId) return { ok: false, message: 'Missing project id' }
+        setStatus((s) => ({ ...s, lastAction: 'project:delete', error: '' }))
+        try {
+          await removeProject(projectId)
+          dispatch({ type: 'PROJECT_DELETE', payload: projectId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete project' }))
+          return { ok: false, message: e?.message || 'Failed to delete project' }
+        }
+      },
+
+      async refreshCertificates() {
+        try {
+          const certs = await fetchCertificates()
+          dispatch({ type: 'CERTIFICATES_SET', payload: certs })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh certificates' }))
+          return { ok: false, message: e?.message || 'Failed to refresh certificates' }
+        }
+      },
+
+      async addCertificate(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'certificate:add', error: '' }))
+        try {
+          const created = await createCertificate(payload)
+          dispatch({ type: 'CERTIFICATE_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add certificate' }))
+          return { ok: false, message: e?.message || 'Failed to add certificate' }
+        }
+      },
+
+      async updateCertificate(payload) {
+        const certificateId = payload?.id
+        if (!certificateId) return { ok: false, message: 'Missing certificate id' }
+        setStatus((s) => ({ ...s, lastAction: 'certificate:update', error: '' }))
+        try {
+          const updated = await editCertificate(certificateId, payload)
+          dispatch({ type: 'CERTIFICATE_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update certificate' }))
+          return { ok: false, message: e?.message || 'Failed to update certificate' }
+        }
+      },
+
+      async deleteCertificate(certificateId) {
+        if (!certificateId) return { ok: false, message: 'Missing certificate id' }
+        setStatus((s) => ({ ...s, lastAction: 'certificate:delete', error: '' }))
+        try {
+          await removeCertificate(certificateId)
+          dispatch({ type: 'CERTIFICATE_DELETE', payload: certificateId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete certificate' }))
+          return { ok: false, message: e?.message || 'Failed to delete certificate' }
+        }
+      },
+
+      async refreshServices() {
+        try {
+          const items = await fetchServices()
+          dispatch({ type: 'SERVICES_SET', payload: items })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh services' }))
+          return { ok: false, message: e?.message || 'Failed to refresh services' }
+        }
+      },
+
+      async addService(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'service:add', error: '' }))
+        try {
+          const created = await createService(payload)
+          dispatch({ type: 'SERVICE_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add service' }))
+          return { ok: false, message: e?.message || 'Failed to add service' }
+        }
+      },
+
+      async updateService(payload) {
+        const serviceId = payload?.id
+        if (!serviceId) return { ok: false, message: 'Missing service id' }
+        setStatus((s) => ({ ...s, lastAction: 'service:update', error: '' }))
+        try {
+          const updated = await editService(serviceId, payload)
+          dispatch({ type: 'SERVICE_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update service' }))
+          return { ok: false, message: e?.message || 'Failed to update service' }
+        }
+      },
+
+      async deleteService(serviceId) {
+        if (!serviceId) return { ok: false, message: 'Missing service id' }
+        setStatus((s) => ({ ...s, lastAction: 'service:delete', error: '' }))
+        try {
+          await removeService(serviceId)
+          dispatch({ type: 'SERVICE_DELETE', payload: serviceId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete service' }))
+          return { ok: false, message: e?.message || 'Failed to delete service' }
+        }
+      },
+
+      async refreshAchievements() {
+        try {
+          const items = await fetchAchievements()
+          dispatch({ type: 'ACHIEVEMENTS_SET', payload: items })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh achievements' }))
+          return { ok: false, message: e?.message || 'Failed to refresh achievements' }
+        }
+      },
+
+      async addAchievement(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'achievement:add', error: '' }))
+        try {
+          const created = await createAchievement(payload)
+          dispatch({ type: 'ACHIEVEMENT_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add achievement' }))
+          return { ok: false, message: e?.message || 'Failed to add achievement' }
+        }
+      },
+
+      async updateAchievement(payload) {
+        const achievementId = payload?.id
+        if (!achievementId) return { ok: false, message: 'Missing achievement id' }
+        setStatus((s) => ({ ...s, lastAction: 'achievement:update', error: '' }))
+        try {
+          const updated = await editAchievement(achievementId, payload)
+          dispatch({ type: 'ACHIEVEMENT_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update achievement' }))
+          return { ok: false, message: e?.message || 'Failed to update achievement' }
+        }
+      },
+
+      async deleteAchievement(achievementId) {
+        if (!achievementId) return { ok: false, message: 'Missing achievement id' }
+        setStatus((s) => ({ ...s, lastAction: 'achievement:delete', error: '' }))
+        try {
+          await removeAchievement(achievementId)
+          dispatch({ type: 'ACHIEVEMENT_DELETE', payload: achievementId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete achievement' }))
+          return { ok: false, message: e?.message || 'Failed to delete achievement' }
+        }
+      },
+
+      async refreshTimeline() {
+        try {
+          const items = await fetchTimeline()
+          dispatch({ type: 'TIMELINE_SET', payload: items })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh timeline' }))
+          return { ok: false, message: e?.message || 'Failed to refresh timeline' }
+        }
+      },
+
+      async addTimelineItem(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'timeline:add', error: '' }))
+        try {
+          const created = await createTimelineItem(payload)
+          dispatch({ type: 'TIMELINE_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add timeline item' }))
+          return { ok: false, message: e?.message || 'Failed to add timeline item' }
+        }
+      },
+
+      async updateTimelineItem(payload) {
+        const timelineId = payload?.id
+        if (!timelineId) return { ok: false, message: 'Missing timeline id' }
+        setStatus((s) => ({ ...s, lastAction: 'timeline:update', error: '' }))
+        try {
+          const updated = await editTimelineItem(timelineId, payload)
+          dispatch({ type: 'TIMELINE_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update timeline item' }))
+          return { ok: false, message: e?.message || 'Failed to update timeline item' }
+        }
+      },
+
+      async deleteTimelineItem(timelineId) {
+        if (!timelineId) return { ok: false, message: 'Missing timeline id' }
+        setStatus((s) => ({ ...s, lastAction: 'timeline:delete', error: '' }))
+        try {
+          await removeTimelineItem(timelineId)
+          dispatch({ type: 'TIMELINE_DELETE', payload: timelineId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete timeline item' }))
+          return { ok: false, message: e?.message || 'Failed to delete timeline item' }
+        }
+      },
+
+      async refreshSkills() {
+        try {
+          const groups = await fetchSkillGroups()
+          dispatch({ type: 'SKILLS_SET', payload: { groups } })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to refresh skills' }))
+          return { ok: false, message: e?.message || 'Failed to refresh skills' }
+        }
+      },
+
+      async addSkillGroup(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'skillGroup:add', error: '' }))
+        try {
+          const created = await createSkillGroup(payload)
+          dispatch({ type: 'SKILL_GROUP_ADD', payload: created })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: created }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add skill group' }))
+          return { ok: false, message: e?.message || 'Failed to add skill group' }
+        }
+      },
+
+      async updateSkillGroup(payload) {
+        const groupId = payload?.id
+        if (!groupId) return { ok: false, message: 'Missing group id' }
+        setStatus((s) => ({ ...s, lastAction: 'skillGroup:update', error: '' }))
+        try {
+          const updated = await editSkillGroup(groupId, payload)
+          dispatch({ type: 'SKILL_GROUP_UPDATE', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update skill group' }))
+          return { ok: false, message: e?.message || 'Failed to update skill group' }
+        }
+      },
+
+      async deleteSkillGroup(groupId) {
+        if (!groupId) return { ok: false, message: 'Missing group id' }
+        setStatus((s) => ({ ...s, lastAction: 'skillGroup:delete', error: '' }))
+        try {
+          await removeSkillGroup(groupId)
+          dispatch({ type: 'SKILL_GROUP_DELETE', payload: groupId })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete skill group' }))
+          return { ok: false, message: e?.message || 'Failed to delete skill group' }
+        }
+      },
+
+      async addSkill(groupId, skill) {
+        if (!groupId) return { ok: false, message: 'Missing group id' }
+        setStatus((s) => ({ ...s, lastAction: 'skill:add', error: '' }))
+        try {
+          const res = await createSkill(groupId, skill)
+          dispatch({ type: 'SKILL_ADD', payload: res })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: res }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to add skill' }))
+          return { ok: false, message: e?.message || 'Failed to add skill' }
+        }
+      },
+
+      async updateSkill(groupId, skill) {
+        if (!groupId || !skill?.id) return { ok: false, message: 'Missing skill id' }
+        setStatus((s) => ({ ...s, lastAction: 'skill:update', error: '' }))
+        try {
+          const res = await editSkill(groupId, skill.id, skill)
+          dispatch({ type: 'SKILL_UPDATE', payload: res })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: res }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update skill' }))
+          return { ok: false, message: e?.message || 'Failed to update skill' }
+        }
+      },
+
+      async deleteSkill(groupId, skillId) {
+        if (!groupId || !skillId) return { ok: false, message: 'Missing skill id' }
+        setStatus((s) => ({ ...s, lastAction: 'skill:delete', error: '' }))
+        try {
+          const res = await removeSkill(groupId, skillId)
+          dispatch({ type: 'SKILL_DELETE', payload: res })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: res }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to delete skill' }))
+          return { ok: false, message: e?.message || 'Failed to delete skill' }
+        }
+      },
+
+      async setAbout(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'about:update', error: '' }))
+        try {
+          const updated = await updateAbout(payload)
+          dispatch({ type: 'ABOUT_SET', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update about' }))
+          return { ok: false, message: e?.message || 'Failed to update about' }
+        }
+      },
+
+      async setContact(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'contact:update', error: '' }))
+        try {
+          const updated = await updateContact(payload)
+          dispatch({ type: 'CONTACT_SET', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update contact' }))
+          return { ok: false, message: e?.message || 'Failed to update contact' }
+        }
+      },
+
+      async setResume(payload) {
+        setStatus((s) => ({ ...s, lastAction: 'resume:update', error: '' }))
+        try {
+          const updated = await updateResume(payload)
+          dispatch({ type: 'RESUME_SET', payload: updated })
+          await updateMeta({ lastUpdated: new Date().toISOString() })
+          return { ok: true, data: updated }
+        } catch (e) {
+          setStatus((s) => ({ ...s, error: e?.message || 'Failed to update resume' }))
+          return { ok: false, message: e?.message || 'Failed to update resume' }
+        }
       },
     }
   }, [])
 
-  const value = useMemo(() => ({ state, actions }), [state, actions])
+  const value = useMemo(() => ({ state, actions, status }), [state, actions, status])
 
   return <PortfolioContext.Provider value={value}>{children}</PortfolioContext.Provider>
 }

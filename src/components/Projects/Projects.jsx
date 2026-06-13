@@ -100,8 +100,8 @@ export default function Projects() {
     <section id="projects" className="section scroll-mt-24">
       <SectionHeader
         eyebrow="Projects"
-        title="Premium builds, real-world ideas"
-        subtitle="A curated showcase of full-stack systems, AI projects, and modern web experiences — presented with a premium UI."
+        title="Turning Ideas into Reality"
+      // subtitle="A collection of scalable applications, intelligent systems, and impactful digital experiences."
       />
 
       <div className="container-x mt-12">
@@ -113,7 +113,7 @@ export default function Projects() {
           ))}
         </div>
 
-       
+
       </div>
 
       <AnimatePresence>

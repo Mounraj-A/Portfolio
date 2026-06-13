@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ImagePlus, Plus, X } from 'lucide-react'
-import { fileToDataUrl } from '../../../storage/storage.js'
+import { uploadImage } from '../../../api/cloudinary.js'
 
 function uniq(list) {
   const out = []
@@ -78,8 +78,8 @@ export default function ProjectFormModal({
     setStatus('')
     try {
       setBusy(true)
-      const dataUrl = await fileToDataUrl(file)
-      setForm((p) => ({ ...p, image: dataUrl }))
+      const secureUrl = await uploadImage(file)
+      setForm((p) => ({ ...p, image: secureUrl }))
     } catch (err) {
       setStatus(err instanceof Error ? err.message : 'Failed to read file')
     } finally {
@@ -202,7 +202,7 @@ export default function ProjectFormModal({
                         </div>
                       </Field>
 
-                      <Field label="Project image" hint="Base64 + LocalStorage">
+                      <Field label="Project image" hint="Cloudinary Upload">
                         <div className="grid gap-3">
                           <input
                             ref={fileRef}

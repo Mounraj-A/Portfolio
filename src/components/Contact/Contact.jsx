@@ -77,8 +77,8 @@ export default function Contact() {
     setRetryAt(null)
     try {
       const templateParams = {
-        from_name: form.name,
-        reply_to: form.email,
+        name: form.name,
+        email: form.email,
         message: form.message,
         ...(emailConfig.toEmail ? { to_email: emailConfig.toEmail } : {}),
       }
@@ -126,7 +126,7 @@ export default function Contact() {
         title={contact?.sectionHeader?.title || 'Let’s build something premium'}
         subtitle={
           contact?.sectionHeader?.subtitle ||
-          'Send a message for collaborations, internships, or project discussions.'
+          ''
         }
       />
 
@@ -271,9 +271,9 @@ export default function Contact() {
                 </motion.a>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-muted">
+              {/* <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-muted"> 
                 Swap placeholders with your real email/phone/links.
-              </div>
+              </div> */}
             </GlassCard>
           </MotionReveal>
         </div>

@@ -8,22 +8,22 @@ import { usePortfolio } from '../../context/PortfolioContext.jsx'
 const roles = [
   {
     title: 'Frontend Developer',
-    desc: 'Crafting crisp, responsive interfaces with React and modern UI patterns.',
+    desc: 'Building responsive web interfaces with React and modern technologies.',
     Icon: Code2,
   },
   {
     title: 'Backend Developer',
-    desc: 'Building reliable APIs and scalable server-side logic with clean architecture.',
+    desc: 'Developing scalable APIs and backend systems with Spring Boot.',
     Icon: Database,
   },
   {
     title: 'AI Enthusiast',
-    desc: 'Exploring ML systems, chatbots, and data-driven features that feel magical.',
+    desc: 'Creating AI-powered applications and intelligent solutions.',
     Icon: Brain,
   },
   {
     title: 'UI/UX Designer',
-    desc: 'Designing premium flows with elegant spacing, hierarchy, and motion.',
+    desc: 'Designing intuitive and visually appealing user experiences.',
     Icon: Palette,
   },
 ]
@@ -60,7 +60,7 @@ export default function About() {
                 <h3 className="font-poppins text-2xl font-bold bg-gradient-to-r from-accentCyan to-accentPurple bg-clip-text text-transparent">
                   Hello, I’m {about?.heroName || 'Mounraj'}
                 </h3>
-               {/* Paragraph */}
+                {/* Paragraph */}
                 <p className="mt-4 text-sm leading-relaxed !text-gray-400 sm:text-base">
                   {about?.paragraph ||
                     'I’m a Computer Science Engineering student passionate about building modern web applications with clean UI, responsive design, and scalable backend systems. I enjoy working with React, Tailwind CSS, Java, and AI-based technologies to create fast and user-friendly digital experiences.'}
