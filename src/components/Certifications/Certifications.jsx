@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Award, X } from 'lucide-react'
 import SectionHeader from '../SectionHeader.jsx'
@@ -91,6 +91,21 @@ export default function Certifications() {
   const [selected, setSelected] = useState(null)
   const { state } = usePortfolio()
   const certs = state.certificates || []
+  const wrapperRef = useRef(null)
+  const [cardWidth, setCardWidth] = useState(320)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+    const update = () => {
+      const w = el.getBoundingClientRect().width
+      setCardWidth(Math.floor((w - 3 * 16) / 4))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   return (
     <section id="certifications" className="section scroll-mt-24">
@@ -102,39 +117,42 @@ export default function Certifications() {
 
       <div className="container-x mt-12">
         <MotionReveal>
-          <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {certs.map((c, idx) => (
-              <motion.div
-                key={c.id || c.title}
-                className="min-w-[260px] sm:min-w-[320px]"
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.18 }}
-              >
-                <GlassCard className="h-full p-6 hover:border-white/20">
-                  <div className="flex h-full flex-col">
-                    <div className="flex items-center justify-between">
-                      <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                        <Award className="h-6 w-6 text-accentCyan" />
+          <div ref={wrapperRef} className="overflow-hidden w-full">
+            <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              {certs.map((c, idx) => (
+                <motion.div
+                  key={c.id || c.title}
+                  className="flex-shrink-0"
+                  style={{ width: cardWidth }}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <GlassCard className="h-[260px] p-6 hover:border-white/20">
+                    <div className="flex h-full flex-col">
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+                          <Award className="h-6 w-6 text-accentCyan" />
+                        </div>
+                        <span className="chip">Certification</span>
                       </div>
-                      <span className="chip">Certification</span>
+
+                      <h3 className="mt-4 line-clamp-2 overflow-hidden text-ellipsis font-poppins text-lg font-bold">{c.title}</h3>
+                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted">{c.description || c.note}</p>
+
+                      <motion.button
+                        type="button"
+                        onClick={() => setSelected(c)}
+                        className="btn-primary mt-auto w-full justify-center"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        View Certificate
+                      </motion.button>
                     </div>
-
-                    <h3 className="mt-4 font-poppins text-lg font-bold">{c.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{c.description || c.note}</p>
-
-                    <motion.button
-                      type="button"
-                      onClick={() => setSelected(c)}
-                      className="btn-primary mt-5 w-full justify-center"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      View Certificate
-                    </motion.button>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </MotionReveal>
       </div>
