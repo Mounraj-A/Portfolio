@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
 
   const [show, setShow] = useState(false)
   const [status, setStatus] = useState('')
-  const [form, setForm] = useState({ username: 'admin', password: '' })
+  const [form, setForm] = useState({ username: '', password: '' })
 
   const from = useMemo(() => {
     const path = location.state?.from
@@ -24,14 +24,20 @@ export default function AdminLoginPage() {
     navigate(from, { replace: true })
   }, [auth.isAuthed, from, navigate])
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault()
     setStatus('')
-    const res = actions.login({ username: form.username, password: form.password })
+
+    const res = await actions.login({
+      username: form.username,
+      password: form.password,
+    })
+
     if (!res.ok) {
       setStatus(res.message || 'Login failed')
       return
     }
+
     navigate(from, { replace: true })
   }
 
@@ -66,13 +72,14 @@ export default function AdminLoginPage() {
                   <div className="mt-2 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
                     <User className="h-5 w-5 text-accentCyan" />
                     <input
+                      type="email"
                       value={form.username}
                       onChange={(e) =>
                         setForm((p) => ({ ...p, username: e.target.value }))
                       }
                       className="w-full bg-transparent text-sm text-text placeholder:text-muted/60 outline-none"
-                      placeholder="Admin"
-                      //autoComplete="username"
+                      placeholder="Admin@email.com"
+                      autoComplete="email"
                       required
                     />
                   </div>

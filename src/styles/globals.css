@@ -114,3 +114,11 @@ p, h1, h2, h3, h4, h5, h6, span, li, div {
   cursor: default;
 }
 
+/* Hide scrollbar while preserving scroll functionality (cross-browser) */
+.hide-scrollbar {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE / Edge legacy */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, Opera */
+}

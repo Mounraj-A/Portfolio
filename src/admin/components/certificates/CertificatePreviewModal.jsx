@@ -59,7 +59,13 @@ export default function CertificatePreviewModal({ open, cert, onClose }) {
                       <div className="mt-2 text-sm text-muted">
                         {cert?.organization ? cert.organization : '—'}
                       </div>
-                      <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
+                      <p
+                        style={{
+                          color: "#9CA3AF",
+                          zIndex: 20,
+                        }}
+                        className="mt-3 text-sm leading-relaxed sm:text-base"
+                      >
                         {cert?.description || cert?.note}
                       </p>
                     </div>
@@ -74,12 +80,12 @@ export default function CertificatePreviewModal({ open, cert, onClose }) {
                     </button>
                   </div>
 
-                  <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                  <div className="mt-6 flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-black/20">
                     {cert?.image ? (
                       <img
                         src={cert.image}
                         alt={`${cert.title} certificate preview`}
-                        className="h-[240px] w-full object-cover sm:h-[420px]"
+                        className="h-[240px] w-full object-contain sm:h-[420px]"
                       />
                     ) : (
                       <div className="flex h-[240px] w-full items-center justify-center text-xs text-muted sm:h-[420px]">

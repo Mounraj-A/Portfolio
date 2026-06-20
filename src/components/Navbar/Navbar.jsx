@@ -56,7 +56,7 @@ export default function Navbar() {
           >
             <img
               src="/logo.png"
-              alt="Mounraj logo"
+              alt="Mounraj"
               className="h-20 w-auto object-contain"
             />
           </button>

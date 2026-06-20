@@ -3,6 +3,9 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { listIconKeys } from '../../../utils/iconRegistry.js'
 
+const TITLE_MAX = 30
+const DESC_MAX = 100
+
 function Field({ label, children, hint }) {
   return (
     <div>
@@ -61,8 +64,16 @@ export default function AchievementFormModal({
       setStatus('Title is required')
       return
     }
+    if (payload.title.length > TITLE_MAX) {
+      setStatus(`Title must be ${TITLE_MAX} characters or fewer`)
+      return
+    }
     if (!payload.desc) {
       setStatus('Description is required')
+      return
+    }
+    if (payload.desc.length > DESC_MAX) {
+      setStatus(`Description must be ${DESC_MAX} characters or fewer`)
       return
     }
 
@@ -124,26 +135,48 @@ export default function AchievementFormModal({
                   </div>
 
                   <form onSubmit={handleSubmit} className="mt-6 grid gap-5">
-                    <Field label="Title" hint="Required">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <Field
+                      label="Title"
+                      hint={
+                        <span className={form.title.length > TITLE_MAX ? 'text-red-400 font-semibold' : 'text-muted/70'}>
+                          {form.title.length} / {TITLE_MAX}
+                        </span>
+                      }
+                    >
+                      <div className={`rounded-2xl border px-4 py-3 ${form.title.length > TITLE_MAX
+                          ? 'border-red-500/40 bg-red-500/5'
+                          : 'border-white/10 bg-white/5'
+                        }`}>
                         <input
                           value={form.title}
                           onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
                           className="w-full bg-transparent text-sm text-text placeholder:text-muted/60 outline-none"
-                          placeholder="e.g. Hackathons"
+                          placeholder="e.g. Hackathons (max 30 chars)"
+                          maxLength={TITLE_MAX + 10}
                           required
                         />
                       </div>
                     </Field>
 
-                    <Field label="Description" hint="Required">
-                      <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <Field
+                      label="Description"
+                      hint={
+                        <span className={form.desc.length > DESC_MAX ? 'text-red-400 font-semibold' : 'text-muted/70'}>
+                          {form.desc.length} / {DESC_MAX}
+                        </span>
+                      }
+                    >
+                      <div className={`rounded-2xl border px-4 py-3 ${form.desc.length > DESC_MAX
+                          ? 'border-red-500/40 bg-red-500/5'
+                          : 'border-white/10 bg-white/5'
+                        }`}>
                         <textarea
                           rows={4}
                           value={form.desc}
                           onChange={(e) => setForm((p) => ({ ...p, desc: e.target.value }))}
                           className="w-full resize-none bg-transparent text-sm text-text placeholder:text-muted/60 outline-none"
-                          placeholder="Write a short achievement description"
+                          placeholder="Write a short achievement description (max 120 chars)"
+                          maxLength={DESC_MAX + 20}
                           required
                         />
                       </div>

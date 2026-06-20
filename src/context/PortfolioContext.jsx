@@ -81,6 +81,7 @@ function normalizeProject(raw) {
     githubUrl: String(project.githubUrl || '').trim(),
     liveUrl: String(project.liveUrl || '').trim(),
     image: String(project.image || '').trim(),
+    iconKey: String(project.iconKey || 'code').trim() || 'code',
   }
 }
 
@@ -104,6 +105,7 @@ function normalizeService(raw) {
     title: String(s.title || '').trim(),
     desc: String(s.desc || s.description || '').trim(),
     iconKey: String(s.iconKey || 'layout').trim() || 'layout',
+    tags: Array.isArray(s.tags) ? s.tags.map((t) => String(t).trim()).filter(Boolean) : [],
   }
 }
 

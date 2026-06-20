@@ -29,6 +29,7 @@ function mapProject(snapshot) {
     githubUrl: cleanString(data.githubUrl),
     liveUrl: cleanString(data.liveUrl),
     image: cleanString(data.image),
+    iconKey: cleanString(data.iconKey) || 'code',
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   }
@@ -44,6 +45,7 @@ function buildProjectPayload(project) {
     githubUrl: cleanString(project.githubUrl),
     liveUrl: cleanString(project.liveUrl),
     image: cleanString(project.image),
+    iconKey: cleanString(project.iconKey) || 'code',
   }
 
   return withTimestamps(payload, project)

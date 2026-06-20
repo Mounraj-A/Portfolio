@@ -17,19 +17,46 @@ export default function Achievements() {
       // subtitle="Showcasing accomplishments through projects, certifications, and practical experience."
       />
 
-      <div className="container-x mt-12">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {/* overflow-hidden clips the scroll viewport — card 5 hidden until scrolled */}
+      <div className="container-x mt-12 overflow-hidden">
+        {/* hide-scrollbar = existing CSS utility that hides bar cross-browser */}
+        <div className="hide-scrollbar flex gap-5 overflow-x-auto">
           {achievements.map((a, idx) => {
             const Icon = getIconByKey(a.iconKey || 'trophy', 'trophy')
             return (
-              <MotionReveal key={a.title} delay={0.05 * idx}>
-                <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.18 }}>
-                  <GlassCard className="h-full p-6 hover:border-white/20">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+              /*
+               * Width = (container - 3 gaps) / 4
+               * gap-5 = 1.25rem → 3 gaps = 3.75rem → per-gap share = 0.9375rem
+               * So each card = calc(25% - 0.9375rem)
+               * MotionReveal carries the width so it is the flex child with correct sizing.
+               */
+              <MotionReveal
+                key={a.id || a.title}
+                delay={0.05 * Math.min(idx, 5)}
+                className="w-[calc(25%-0.9375rem)] flex-none"
+              >
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {/* Fixed height — content NEVER changes card size */}
+                  <GlassCard className="h-[220px] p-6 hover:border-white/20 flex flex-col overflow-hidden">
+
+                    {/* Icon */}
+                    <div className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                       <Icon className="h-6 w-6 text-accentCyan" />
                     </div>
-                    <h3 className="mt-4 font-poppins text-lg font-bold">{a.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted">{a.desc}</p>
+
+                    {/* Title — exactly 1 line */}
+                    <h3 className="mt-4 w-full min-w-0 overflow-hidden font-poppins text-lg font-bold leading-snug line-clamp-1">
+                      {a.title}
+                    </h3>
+
+                    {/* Description — exactly 3 lines */}
+                    <p className="mt-2 w-full min-w-0 overflow-hidden text-sm leading-relaxed text-muted line-clamp-3">
+                      {a.desc}
+                    </p>
+
                   </GlassCard>
                 </motion.div>
               </MotionReveal>

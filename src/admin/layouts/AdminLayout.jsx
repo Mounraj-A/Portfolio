@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import AdminSidebar from '../components/AdminSidebar.jsx'
 import AdminTopbar from '../components/AdminTopbar.jsx'
+import { useInactivityLogout } from '../../hooks/useInactivityLogout.js'
 
 function titleFromPath(pathname) {
   const key = pathname.split('/').filter(Boolean).slice(1)[0] || 'dashboard'
@@ -24,6 +25,9 @@ export default function AdminLayout() {
   const location = useLocation()
 
   const title = useMemo(() => titleFromPath(location.pathname), [location.pathname])
+
+  // Auto-logout after 15 minutes of inactivity
+  useInactivityLogout()
 
   // Lock body scroll when mobile sidebar is open (prevents background scroll on small screens)
   useEffect(() => {

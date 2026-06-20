@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ImagePlus, Plus, X } from 'lucide-react'
 import { uploadImage } from '../../../api/cloudinary.js'
+import { PROJECT_ICON_OPTIONS, getProjectIcon } from '../../../utils/projectIconRegistry.js'
 
 function uniq(list) {
   const out = []
@@ -55,6 +56,7 @@ export default function ProjectFormModal({
       githubUrl: p.githubUrl || '',
       liveUrl: p.liveUrl || '',
       image: p.image || '',
+      iconKey: p.iconKey || 'code',
     }
   }, [initialProject])
 
@@ -109,6 +111,7 @@ export default function ProjectFormModal({
       githubUrl: String(form.githubUrl || '').trim(),
       liveUrl: String(form.liveUrl || '').trim(),
       tech: uniq((form.tech || []).map((t) => String(t).trim()).filter(Boolean)),
+      iconKey: form.iconKey || 'code',
     }
 
     if (!payload.title || !payload.description) {
@@ -199,6 +202,34 @@ export default function ProjectFormModal({
                             placeholder="e.g. Smart Inventory"
                             required
                           />
+                        </div>
+                      </Field>
+
+                      {/* ── Icon picker ── */}
+                      <Field label="Project Icon" hint="Displayed on card">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {/* Live icon preview */}
+                            {(() => {
+                              const PreviewIcon = getProjectIcon(form.iconKey)
+                              return (
+                                <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accentCyan/25 to-accentBlue/15 border border-white/10">
+                                  <PreviewIcon className="h-5 w-5 text-accentCyan" />
+                                </span>
+                              )
+                            })()}
+                            <select
+                              value={form.iconKey}
+                              onChange={(e) => setForm((p) => ({ ...p, iconKey: e.target.value }))}
+                              className="flex-1 bg-transparent text-sm text-text outline-none cursor-pointer"
+                            >
+                              {PROJECT_ICON_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value} className="bg-[#0f1117] text-white">
+                                  {opt.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </Field>
 

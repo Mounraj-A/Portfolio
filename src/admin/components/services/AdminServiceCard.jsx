@@ -7,14 +7,14 @@ export default function AdminServiceCard({ service, onEdit, onDelete }) {
 
   return (
     <motion.div
-      className="glass group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-5"
+      className="glass group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-5"
       whileHover={{ y: -4 }}
       transition={{ duration: 0.18 }}
     >
       <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accentCyan/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-28 -left-28 h-64 w-64 rounded-full bg-accentPurple/10 blur-3xl" />
 
-      <div className="relative">
+      <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
             <Icon className="h-6 w-6 text-accentCyan" />
@@ -40,10 +40,20 @@ export default function AdminServiceCard({ service, onEdit, onDelete }) {
           </div>
         </div>
 
-        <h3 className="mt-4 font-poppins text-lg font-extrabold">{service?.title || 'Untitled'}</h3>
+        <h3 className="mt-4 line-clamp-2 font-poppins text-lg font-extrabold">{service?.title || 'Untitled'}</h3>
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">
           {service?.desc || '—'}
         </p>
+
+        <div className="flex-grow" />
+
+        {Array.isArray(service?.tags) && service.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-3">
+            {service.tags.map((tag) => (
+              <span key={tag} className="chip">{tag}</span>
+            ))}
+          </div>
+        )}
 
         <div className="mt-4 flex justify-end gap-2 sm:hidden">
           <button type="button" onClick={() => onEdit(service)} className="btn-secondary">
@@ -56,6 +66,7 @@ export default function AdminServiceCard({ service, onEdit, onDelete }) {
           </button>
         </div>
       </div>
+
     </motion.div>
   )
 }

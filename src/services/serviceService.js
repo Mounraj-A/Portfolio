@@ -18,6 +18,7 @@ function mapService(snapshot) {
     title: cleanString(data.title),
     desc: cleanString(data.desc || data.description),
     iconKey: cleanString(data.iconKey || 'layout') || 'layout',
+    tags: Array.isArray(data.tags) ? data.tags.map((t) => String(t).trim()).filter(Boolean) : [],
     createdAt: toIsoString(data.createdAt),
     updatedAt: toIsoString(data.updatedAt),
   }
@@ -29,6 +30,7 @@ function buildServicePayload(service) {
       title: cleanString(service.title),
       desc: cleanString(service.desc || service.description),
       iconKey: cleanString(service.iconKey || 'layout') || 'layout',
+      tags: Array.isArray(service.tags) ? service.tags.map((t) => String(t).trim()).filter(Boolean) : [],
     },
     service
   )
